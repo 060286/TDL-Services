@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDL-Services", "TDL-Services\TDL-Services.csproj", "{0456A766-FED4-4117-8261-CB8C364C5AB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDL.APIs", "TDL-Services\TDL.APIs.csproj", "{0456A766-FED4-4117-8261-CB8C364C5AB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDL.Services", "TDL.Services\TDL.Services.csproj", "{B4C33128-35FC-4099-A66F-4973BF178740}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDL.Domain", "TDL.Domain\TDL.Domain.csproj", "{3CB966FD-3A54-482E-B20D-40980C3BE799}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDL.Infrastructure", "TDL.Infrastructure\TDL.Infrastructure.csproj", "{F13DB23B-C7B1-4654-A2F3-884E7FEF2736}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{0456A766-FED4-4117-8261-CB8C364C5AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0456A766-FED4-4117-8261-CB8C364C5AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0456A766-FED4-4117-8261-CB8C364C5AB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4C33128-35FC-4099-A66F-4973BF178740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4C33128-35FC-4099-A66F-4973BF178740}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4C33128-35FC-4099-A66F-4973BF178740}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4C33128-35FC-4099-A66F-4973BF178740}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CB966FD-3A54-482E-B20D-40980C3BE799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CB966FD-3A54-482E-B20D-40980C3BE799}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CB966FD-3A54-482E-B20D-40980C3BE799}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CB966FD-3A54-482E-B20D-40980C3BE799}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F13DB23B-C7B1-4654-A2F3-884E7FEF2736}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F13DB23B-C7B1-4654-A2F3-884E7FEF2736}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F13DB23B-C7B1-4654-A2F3-884E7FEF2736}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F13DB23B-C7B1-4654-A2F3-884E7FEF2736}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
