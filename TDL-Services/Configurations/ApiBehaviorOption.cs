@@ -15,7 +15,7 @@ namespace TDL.APIs.Configurations
     {
         public static IMvcBuilder ConfigureApiBehaviorOptions(this IMvcBuilder builder)
         {
-            Guard.ThorwIfNull<ArgumentNullException>(builder, nameof(builder));
+            Guard.ThrowIfNull<ArgumentNullException>(builder, nameof(builder));
 
             builder.Services.Configure<ApiBehaviorOptions>(opts =>
             {

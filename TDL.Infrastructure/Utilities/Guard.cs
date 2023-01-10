@@ -11,7 +11,7 @@ namespace TDL.Infrastructure.Utilities
         /// <param name="obj"></param>
         /// <param name="message"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static void ThorwIfNull<TExceptionType>(object obj, string message) where TExceptionType : Exception
+        public static void ThrowIfNull<TExceptionType>(object obj, string message) where TExceptionType : Exception
         {
             if(obj != null)
             {

@@ -1,5 +1,4 @@
-using EDH.APIs.Configurations;
-using Hangfire;
+using TDL.APIs.Configurations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TDL.APIs.Configurations;
 using TDL.APIs.Extensions;
 using TDL.Infrastructure.Constants;
 using TDL.Services.Configurations;

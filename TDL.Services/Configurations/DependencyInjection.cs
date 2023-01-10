@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using NetCore.AutoRegisterDi;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using TDL.Services.Services.v1;
+using TDL.Services.Services.v1.Interfaces;
 using TDL.Services.SignalR;
 
 namespace TDL.Services.Configurations
@@ -18,8 +17,10 @@ namespace TDL.Services.Configurations
         public static IServiceCollection ConfigureServiceDi(this IServiceCollection services)
         {
             services.RegisterAssemblyPublicNonGenericClasses()
-                .Where(c => c.Name.EndsWith("Services"))
+                .Where(c => c.Name.EndsWith("Service"))
                 .AsPublicImplementedInterfaces(ServiceLifetime.Scoped);
+
+            services.AddScoped<ITodoService, TodoService>();
 
             services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 

@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
-using System.Text;
 using TDL.Domain.Entities;
 using TDL.Domain.Helper;
 using TDL.Infrastructure.Configurations;
@@ -16,17 +15,18 @@ namespace TDL.Domain.Context
     {
         private readonly AppSettings _appSettings;
 
-
         /// <summary>
         /// This constructor is using for generationg code 1st migration
         /// </summary>
         /// <param name="contextOptions"></param>
         /// <param name="appSettings"></param>
         public TdlContext(
-                DbContextOptions contextOptions, 
+                DbContextOptions contextOptions,
                 IOptions<AppSettings> appSettings) 
             : base(contextOptions, new List<IEntityTypeConfigurationDependency>(), string.Empty, string.Empty)
         {
+            //Debugger.Launch();
+
             _appSettings = appSettings.Value;
         }
 
@@ -47,7 +47,9 @@ namespace TDL.Domain.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.HasDefaultSchema(_appSettings.SchemaSettings.TdlSchema);
+            //Debugger.Launch();
+
+            modelBuilder.HasDefaultSchema(/*_appSettings.SchemaSettings.TdlSchema*/ "tdl_services");
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
