@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Extensions;
 
-namespace EDH.APIs.Configurations
+namespace TDL.APIs.Configurations
 {
     public static class IdentityServerAuthentication
     {

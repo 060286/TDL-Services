@@ -5,10 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="AutoMapper\" />
-    <Folder Include="Dto\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Validators\" />
   </ItemGroup>
 
   <ItemGroup>

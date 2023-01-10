@@ -8,7 +8,7 @@ namespace TDL.Domain.EntityMapping
     {
         public override void Configure(EntityTypeBuilder<Todo> builder)
         {
-            throw new System.NotImplementedException();
+            builder.Property(td => td.Title).IsRequired();
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.APIs.Controllers.v1
 {
@@ -8,29 +10,20 @@ namespace TDL.APIs.Controllers.v1
     [Route("api/v{version:apiVersion}/users")]
     public class MyDayPageController : BaseController
     {
-        public MyDayPageController()
+        private readonly ITodoService _todoService;
+
+        public MyDayPageController(ITodoService todoService)
         {
+            _todoService = todoService;
         }
 
         [AllowAnonymous]
-        [HttpGet("tesing-my-day")]
-        public IActionResult Test()
+        [HttpGet("{id}/tesing-my-day")]
+        public IActionResult Test(Guid id)
         {
-            var result = new MyDay(1, "test");
+            var result = _todoService.GetTodoById(id);
 
             return Ok(result);
         }
-    }
-    
-    public class MyDay
-    {
-        public MyDay(int id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
-
-        public int Id { get; set; }
-        public string Name { get; set; }
     }
 }

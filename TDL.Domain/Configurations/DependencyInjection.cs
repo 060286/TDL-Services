@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NetCore.AutoRegisterDi;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using TDL.Domain.Context;
 using TDL.Infrastructure.Configurations;
@@ -30,12 +31,12 @@ namespace TDL.Domain.Configurations
 
         private static void ConfigureDatabase(IServiceCollection services, IConfiguration configuration)
         {
+            var temp = configuration.GetValue<string>(ConfigurationConstant.TdlSchemaName);
+
             services.AddDbContext<TdlContext>(opts =>
                 opts.UseSqlServer(configuration.GetValue<string>(ConfigurationConstant.DefaultConnection),
                     contextBuilder => contextBuilder.MigrationsHistoryTable("__EFMigrationsHistory",
-                        configuration.GetValue<string>(ConfigurationConstant.TdlSchemaName))
-                )
-            );
+                        configuration.GetValue<string>(ConfigurationConstant.TdlSchemaName))));
 
             services.AddSingleton<IContextFactory<BaseDbContext>, ContextFactory>(sp =>
                 new ContextFactory(new DbContextOptionsBuilder<TdlContext>()
