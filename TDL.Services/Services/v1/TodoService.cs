@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TDL.Domain.Entities;
@@ -13,12 +14,28 @@ namespace TDL.Services.Services.v1
     {
         private readonly IRepository<Todo> _todoRepository;
         private readonly IUnitOfWorkProvider _uow;
+        private IMapper _mapper;
 
         public TodoService(IRepository<Todo> todoRepository,
-            IUnitOfWorkProvider uow)
+            IUnitOfWorkProvider uow, 
+            IMapper mapper)
         {
             _todoRepository = todoRepository;
             _uow = uow;
+            _mapper = mapper;
+        }
+
+        public void CreateSimpleTodo(CreateSimpleTodoRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            Guid id = Guid.NewGuid();
+
+            Todo response = BuildSimpleTodo(id, request.Title);
+
+            _todoRepository.Add(response);
+
+            scope.Complete();
         }
 
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
@@ -34,6 +51,17 @@ namespace TDL.Services.Services.v1
             };
 
             return result;
+        }
+
+        private Todo BuildSimpleTodo(Guid id, string Title)
+        {
+            return new Todo
+            {
+                Id = id,
+                Title = Title,
+                IsArchieved = false,
+                IsCompleted = false,
+            };
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.APIs.Controllers.v1
@@ -17,13 +18,25 @@ namespace TDL.APIs.Controllers.v1
             _todoService = todoService;
         }
 
+        [HttpPost("simple-todo")]
         [AllowAnonymous]
-        [HttpGet("{id}/tesing-my-day")]
-        public IActionResult Test(Guid id)
+        public IActionResult CreateSimpleTodo([FromBody] CreateSimpleTodoRequestDto request)
         {
-            var result = _todoService.GetTodoById(id);
+            _todoService.CreateSimpleTodo(request);
 
-            return Ok(result);
+            return Ok();
+        }
+
+        [HttpGet("{id}/todo")]
+        public IActionResult GetById(Guid id)
+        {
+            return Ok();
+        }
+
+        [HttpPut("{id}/todo")]
+        public IActionResult UpdateTodo([FromBody] UpdateTodoRequestDto request)
+        {
+            return Ok();
         }
     }
 }

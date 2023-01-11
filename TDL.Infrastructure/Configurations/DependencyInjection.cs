@@ -21,6 +21,7 @@ namespace TDL.Infrastructure.Configurations
                 imp => new UnitOfWorkProvider(imp.GetService<IContextFactory<BaseDbContext>>()));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             services.Configure<AppSettings>(opts => configuration.GetSection(nameof(AppSettings)).Bind(opts));
 
             //services.AddSingleton<IBlobStorageService, BlobStorageService>();

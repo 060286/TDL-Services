@@ -8,5 +8,7 @@ namespace TDL.Services.Services.v1.Interfaces
     public interface ITodoService
     {
         GetMyDayItemDetailResponseDto GetTodoById(Guid todoId);
+
+        void CreateSimpleTodo(CreateSimpleTodoRequestDto request);
     }
 }

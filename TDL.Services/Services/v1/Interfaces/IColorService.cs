@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TDL.Services.Dto.MyDayPage
+namespace TDL.Services.Services.v1.Interfaces
 {
-    public class GetMyDayRequestDto
+    public interface IColorService
     {
     }
 }
