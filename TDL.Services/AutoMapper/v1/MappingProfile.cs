@@ -14,6 +14,7 @@ namespace TDL.Services.AutoMapper.v1
         private void MapMyDayPage()
         {
             CreateMap<Todo, GetMyDayItemDetailResponseDto>();
+            CreateMap<CreateSimpleTodoRequestDto, Todo>();
         }
     }
 }

@@ -9,6 +9,14 @@ namespace TDL.Domain.EntityMapping
         public override void Configure(EntityTypeBuilder<Todo> builder)
         {
             builder.Property(td => td.Title).IsRequired();
+
+            builder.HasMany<SubTask>(todo => todo.SubTasks)
+                .WithOne(todo => todo.Todo)
+                .HasForeignKey(todo => todo.TodoId);
+
+            builder.HasMany<Tag>(todo => todo.Tags)
+                .WithOne(todo => todo.Todo)
+                .HasForeignKey(todo => todo.TodoId);
         }
     }
 }

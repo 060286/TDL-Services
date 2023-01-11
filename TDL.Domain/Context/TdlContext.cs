@@ -43,13 +43,17 @@ namespace TDL.Domain.Context
 
         public DbSet<TodoCategory> TodoCategories { get; set; }
 
+        public DbSet<Todo> Todos { get; set; }
+
+        public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<SubTask> SubTasks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            //Debugger.Launch();
-
-            modelBuilder.HasDefaultSchema(/*_appSettings.SchemaSettings.TdlSchema*/ "tdl_services");
+            modelBuilder.HasDefaultSchema(_appSettings.SchemaSettings.TdlSchema /*"tdl_services"*/);
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
