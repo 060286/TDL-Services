@@ -16,6 +16,8 @@ namespace TDL.Services.Dto.MyDayPage
 
         public bool IsCompleted { get; set; }
 
+        public bool IsArchieved { get; set; }
+
         public string Description { get; set; }
 
         public IList<string> SubTasks { get; set; }
