@@ -64,7 +64,7 @@ namespace TDL.Infrastructure.Persistence.Context
             {
                 if(entry.Entity is IAuditable auditableEntity)
                 {
-                    var now = DateTime.UtcNow;
+                    var now = DateTime.UtcNow.AddHours(7);
 
                     switch(entry.State)
                     {

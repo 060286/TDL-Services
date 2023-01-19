@@ -9,7 +9,7 @@ namespace TDL.APIs.Configurations
         public static void AllowCors(this IServiceCollection services, IConfiguration configuration)
         {
             //var teamp = configuration.GetSection();
-
+            
             services.AddCors(options =>
             {
                 options.AddPolicy(ConfigurationConstant.CorsPolicy,

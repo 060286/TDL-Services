@@ -49,6 +49,12 @@ namespace TDL.Domain.Context
 
         public DbSet<SubTask> SubTasks { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Workspace> Workspaces { get; set; }
+
+        public DbSet<UserWorkspace> UserWorkspaces { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -67,3 +73,4 @@ namespace TDL.Domain.Context
         }
     }
 }
+ 

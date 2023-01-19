@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using TDL.Infrastructure.Constants;
 using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
@@ -10,7 +12,6 @@ namespace TDL.APIs.Controllers.v1
 {
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
-    [EnableCors(ConfigurationConstant.CorsPolicy)]
     [Route("api/v{version:apiVersion}/myday-page")]
     public class MyDayPageController : BaseController
     {
@@ -25,9 +26,9 @@ namespace TDL.APIs.Controllers.v1
         [AllowAnonymous]
         public IActionResult CreateSimpleTodo([FromBody] CreateSimpleTodoRequestDto request)
         {
-            _todoService.CreateSimpleTodo(request);
+            var response = _todoService.CreateSimpleTodo(request);
 
-            return Ok();
+            return Ok(response);
         }
 
         [AllowAnonymous]
@@ -53,6 +54,24 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult GetAllToDo()
         {
             var response = _todoService.GetAllTodo();
+
+            return Ok(response);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("todo-of-date")]
+        public IActionResult GetListTodoOfList([FromQuery] DateTime dateTime)
+        {
+            IList<TodoOfDateResponseDto> response = _todoService.GetTodoOfDate(dateTime);
+
+            return Ok(response);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("todo-suggestions-list")]
+        public IActionResult GetSuggestTodoList(string keyword)
+        {
+            var response = _todoService.GetSuggestTodoList(keyword);
 
             return Ok(response);
         }
