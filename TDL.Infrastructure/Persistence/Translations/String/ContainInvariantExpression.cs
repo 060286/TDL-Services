@@ -8,8 +8,8 @@ namespace TDL.Infrastructure.Persistence.Translations.String
     public class ContainInvariantExpression : BaseSqlBinaryStringExpression
     {
         public ContainInvariantExpression(SqlExpression left, SqlExpression right)
-            : base(ExpressionType.GreaterThan, BuildStringContainExpr(left, right), 
-                  BuildConstantZeroExpr(), typeof(string), new StringTypeMapping(DataBaseConstant.StringVarcharType))
+    : base(ExpressionType.GreaterThan, BuildStringContainExpr(left, right),
+        BuildConstantZeroExpr(), typeof(string), new StringTypeMapping(DataBaseConstant.StringVarcharType))
         {
         }
 
@@ -20,7 +20,7 @@ namespace TDL.Infrastructure.Persistence.Translations.String
 
         private static SqlExpression BuildStringContainExpr(SqlExpression left, SqlExpression right)
         {
-            return SqlFunctionExpression.Create(DataBaseConstant.StringContainFunc, new[] { BuildLowerExpr(left), BuildLowerExpr(right) },
+            return SqlFunctionExpression.Create(DataBaseConstant.StringContainFunc, new[] { BuildLowerExpr(right), BuildLowerExpr(left) },
                 typeof(string), new StringTypeMapping(DataBaseConstant.StringVarcharType));
         }
     }

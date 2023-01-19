@@ -1,12 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Translations.DateTime;
 using TDL.Infrastructure.Persistence.Translations.String;
 
 namespace TDL.Infrastructure.Persistence.Translations
 {
+    /// <summary>
+    /// Translate all in-memory functions into sql query.
+    /// </summary>
     public static class Translation
     {
         public static void Translate(this ModelBuilder modelBuilder, string requestedTimeZone)
@@ -17,22 +20,22 @@ namespace TDL.Infrastructure.Persistence.Translations
             TranslateEqualToYearWithOffsetFunc(modelBuilder, requestedTimeZone);
         }
 
-        public static void TranslateEqualsInvariantFunc(ModelBuilder modelBuilder)
+        private static void TranslateEqualsInvariantFunc(ModelBuilder modelBuilder)
         {
             MethodInfo methodInfo = typeof(StringExtension).GetMethod(nameof(StringExtension.EqualsInvariant));
 
-            if(methodInfo != null)
+            if (methodInfo != null)
             {
                 modelBuilder.HasDbFunction(methodInfo)
                     .HasTranslation(args => new EqualsInvariantExpression(args.First(), args.Last()));
             }
         }
 
-        public static void TranslateContainKeyWordInvariantFunc(ModelBuilder modelBuilder)
+        private static void TranslateContainKeyWordInvariantFunc(ModelBuilder modelBuilder)
         {
             MethodInfo methodInfo = typeof(StringExtension).GetMethod(nameof(StringExtension.ContainInvariant));
 
-            if(methodInfo != null)
+            if (methodInfo != null)
             {
                 modelBuilder.HasDbFunction(methodInfo)
                     .HasTranslation(args => new ContainInvariantExpression(args.First(), args.Last()));
@@ -43,7 +46,7 @@ namespace TDL.Infrastructure.Persistence.Translations
         {
             MethodInfo methodInfo = typeof(DateTimeExtension).GetMethod(nameof(DateTimeExtension.EqualToMonth));
 
-            if(methodInfo != null)
+            if (methodInfo != null)
             {
                 modelBuilder.HasDbFunction(methodInfo)
                     .HasTranslation(args => new EqualToMonthWithOffsetExpression(args.First(), args.Last(), requestedTimeZone));
@@ -54,7 +57,7 @@ namespace TDL.Infrastructure.Persistence.Translations
         {
             MethodInfo methodInfo = typeof(DateTimeExtension).GetMethod(nameof(DateTimeExtension.EqualToYear));
 
-            if(methodInfo != null)
+            if (methodInfo != null)
             {
                 modelBuilder.HasDbFunction(methodInfo)
                     .HasTranslation(args => new EqualToYearWithOffsetExpression(args.First(), args.Last(), requestedTimeZone));

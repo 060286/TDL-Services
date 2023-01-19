@@ -7,9 +7,8 @@ namespace TDL.Infrastructure.Persistence.Translations.String
 {
     public class EqualsInvariantExpression : BaseSqlBinaryStringExpression
     {
-        public EqualsInvariantExpression(SqlExpression left, SqlExpression right) 
-            : base (ExpressionType.Equal, BuildLowerExpr(left), BuildLowerExpr(right), typeof(string), 
-                  new StringTypeMapping(DataBaseConstant.StringVarcharType))
+        public EqualsInvariantExpression(SqlExpression left, SqlExpression right)
+            : base(ExpressionType.Equal, BuildLowerExpr(left), BuildLowerExpr(right), typeof(string), new StringTypeMapping(DataBaseConstant.StringVarcharType))
         {
         }
     }

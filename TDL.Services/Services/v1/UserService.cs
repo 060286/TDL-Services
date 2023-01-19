@@ -47,8 +47,8 @@ namespace TDL.Services.Services.v1
             using var scope = _uowProvider.Provide();
 
             var result = _userRepository.GetAll(true)
-                .Where(us => string.IsNullOrEmpty(keyword) || us.UserName.Contains(keyword) ||
-                       us.Email.Contains(keyword) || us.PhoneNumber.Contains(keyword))
+                .Where(us => string.IsNullOrEmpty(keyword) || us.UserName.ContainInvariant(keyword) ||
+                       us.Email.ContainInvariant(keyword) || us.PhoneNumber.ContainInvariant(keyword))
                 .Select(re => new UserInfoReponseDto
                 {
                     Id = re.Id,
