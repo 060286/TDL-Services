@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TDL.Domain.Entities;
+using TDL.Services.Dto.AllMyTask;
 using TDL.Services.Dto.MyDayPage;
 
 namespace TDL.Services.AutoMapper.v1
@@ -9,12 +10,18 @@ namespace TDL.Services.AutoMapper.v1
         public MappingProfile() 
         {
             MapMyDayPage();
+            MapAllTaskPage();
         }
 
         private void MapMyDayPage()
         {
             CreateMap<Todo, GetMyDayItemDetailResponseDto>();
             CreateMap<CreateSimpleTodoRequestDto, Todo>();
+        }
+
+        private void MapAllTaskPage()
+        {
+            CreateMap<Todo, AllTaskItemResponseDto>();
         }
     }
 }

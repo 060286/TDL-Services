@@ -1,10 +1,7 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using TDL.Infrastructure.Constants;
 using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -23,7 +20,6 @@ namespace TDL.APIs.Controllers.v1
         }
 
         [HttpPost("simple-todo")]
-        [AllowAnonymous]
         public IActionResult CreateSimpleTodo([FromBody] CreateSimpleTodoRequestDto request)
         {
             var response = _todoService.CreateSimpleTodo(request);
@@ -31,16 +27,17 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpGet("{id}/todo")]
         public IActionResult GetById(Guid id)
         {
             var response = _todoService.GetTodoById(id);
 
+            Guid userId = UserId;
+            string userName = UserName;
+
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpPut("{id}/todo")]
         public IActionResult UpdateTodo([FromBody] UpdateTodoRequestDto request)
         {
@@ -49,7 +46,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok();
         }
 
-        [AllowAnonymous]
         [HttpGet("todos")]
         public IActionResult GetAllToDo()
         {
@@ -58,7 +54,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpGet("todo-of-date")]
         public IActionResult GetListTodoOfList([FromQuery] DateTime dateTime)
         {
@@ -67,13 +62,20 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpGet("todo-suggestions-list")]
         public IActionResult GetSuggestTodoList(string keyword)
         {
             var response = _todoService.GetSuggestTodoList(keyword);
 
             return Ok(response);
+        }
+
+        [HttpPut("{id}/completed-task")]
+        public IActionResult UpdateCompletedTask(Guid id)
+        {
+            _todoService.UpdateCompletedOfTask(id);
+
+            return Ok();
         }
     }
 }

@@ -36,7 +36,7 @@ namespace TDL.APIs.Configurations
                         In = ParameterLocation.Header,
                         Type = SecuritySchemeType.ApiKey,
                         Scheme = JwtBearerDefaults.AuthenticationScheme
-                    });
+                    }); 
 
                     c.AddSecurityRequirement(new OpenApiSecurityRequirement
                     {

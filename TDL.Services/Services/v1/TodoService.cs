@@ -136,6 +136,20 @@ namespace TDL.Services.Services.v1
             return response;
         }
 
+        public void UpdateCompletedOfTask(Guid id)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .FirstOrDefault(td => td.Id == id);
+
+            Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
+
+            todo.IsCompleted = !todo.IsCompleted;
+
+            scope.Complete();
+        }
+
         public void UpdateTodo(UpdateTodoRequestDto request)
         {
             using var scope = _uow.Provide(); 

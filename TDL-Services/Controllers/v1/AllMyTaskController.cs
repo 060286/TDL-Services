@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using TDL.Infrastructure.Constants;
 using TDL.Services.Dto.MyDayPage;
+using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.APIs.Controllers.v1
 {
@@ -13,20 +15,19 @@ namespace TDL.APIs.Controllers.v1
     [Route("api/v{version:apiVersion}/allmytask-page")]
     public class AllMyTaskController : BaseController
     {
-        [AllowAnonymous]
-        [HttpGet]
-        public IActionResult Test()
+        private readonly IAllMyTaskPageService _allMyTaskPageService;
+
+        public AllMyTaskController(IAllMyTaskPageService allMyTaskPageService)
         {
-
-            return Ok(new AllMyDay
-            {
-                Title = string.Empty
-            });
+            _allMyTaskPageService = allMyTaskPageService;
         }
-    }
 
-    public class AllMyDay
-    {
-        public string Title { get; set; }
+        [HttpGet("all-task")]
+        public IActionResult GetAllTask(DateTime dateTime)
+        {
+            var response = _allMyTaskPageService.GetAllTask(dateTime);
+
+            return Ok(response);
+        }
     }
 }

@@ -18,5 +18,7 @@ namespace TDL.Services.Services.v1.Interfaces
         IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime);
 
         IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword);
+
+        void UpdateCompletedOfTask(Guid id);
     }
 }

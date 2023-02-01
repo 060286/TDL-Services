@@ -7,6 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Extensions;
@@ -33,7 +34,19 @@ namespace TDL.APIs.Configurations
             //        options.Audience = configuration[ConfigurationConstant.AzureADAudience];
             //    });
 
-            services.AddAuthentication();
+            //services.AddAuthentication();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("my top secret key")),
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                    };
+                });
         }
 
         private static Task OnAuthenticationFailed(AuthenticationFailedContext context)
