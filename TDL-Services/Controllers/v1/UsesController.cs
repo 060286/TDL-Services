@@ -37,5 +37,24 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(response);
         }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] UserLoginRequestDto request)
+        {
+            //HttpContext.User.
+
+            UserLoginResponseDto response = _userService.LoginAndGetUserToken(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("user-info")]
+        public IActionResult GetUserInfo()
+        {
+            var response = _userService.GetUserInfo(userId: UserId);
+
+            return Ok(response);
+        }
     }
 }

@@ -25,8 +25,13 @@ namespace TDL.APIs.Controllers.v1
         }
     }
 
-    public class AllMyDay
-    {
-        public string Title { get; set; }
+        [HttpGet("all-task")]
+        [AllowAnonymous]
+        public IActionResult GetAllTask(DateTime dateTime)
+        {
+            var response = _allMyTaskPageService.GetAllTask(dateTime);
+
+            return Ok(response);
+        }
     }
 }

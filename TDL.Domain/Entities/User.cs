@@ -22,6 +22,8 @@ namespace TDL.Domain.Entities
 
         public string PhoneNumber { get; set; }
 
+        public long LoginCount { get; set; } = 0;
+
         public IList<UserWorkspace> UserWorkspaces { get; set; }
     }
 }
