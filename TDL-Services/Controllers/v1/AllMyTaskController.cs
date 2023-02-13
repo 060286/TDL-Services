@@ -13,25 +13,14 @@ namespace TDL.APIs.Controllers.v1
     [Route("api/v{version:apiVersion}/allmytask-page")]
     public class AllMyTaskController : BaseController
     {
-        [AllowAnonymous]
-        [HttpGet]
-        public IActionResult Test()
-        {
+        //[HttpGet("all-task")]
+        //[AllowAnonymous]
+        //public IActionResult GetAllTask(DateTime dateTime)
+        //{
+        //    var response = _allMyTaskPageService.GetAllTask(dateTime);
 
-            return Ok(new AllMyDay
-            {
-                Title = string.Empty
-            });
-        }
+        //    return Ok(response);
+        //}
     }
-
-        [HttpGet("all-task")]
-        [AllowAnonymous]
-        public IActionResult GetAllTask(DateTime dateTime)
-        {
-            var response = _allMyTaskPageService.GetAllTask(dateTime);
-
-            return Ok(response);
-        }
-    }
+    
 }
