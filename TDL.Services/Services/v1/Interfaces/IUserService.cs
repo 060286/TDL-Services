@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TDL.Services.Dto.User;
 
 namespace TDL.Services.Services.v1.Interfaces
@@ -8,5 +9,9 @@ namespace TDL.Services.Services.v1.Interfaces
         void RegisterAccount(RegisterAccountRequestDto request);
 
         IList<UserInfoReponseDto> SearchUserInfo(string keyword);
+
+        UserLoginResponseDto LoginAndGetUserToken(UserLoginRequestDto request);
+
+        UserInfoDetailResponseDto GetUserInfo(Guid id);
     }
 }

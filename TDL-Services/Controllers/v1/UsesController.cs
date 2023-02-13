@@ -52,7 +52,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("user-info")]
         public IActionResult GetUserInfo()
         {
-            var response = _userService.GetUserInfo(userId: UserId);
+            var response = _userService.GetUserInfo(id: UserId);
 
             return Ok(response);
         }

@@ -12,7 +12,7 @@ namespace TDL.Infrastructure.Extensions
     {
         public static string GetTimeZone(this HttpContext context)
         {
-            if(context == null)
+            if (context == null)
             {
                 return string.Empty;
             }
@@ -22,7 +22,7 @@ namespace TDL.Infrastructure.Extensions
 
         public static string GetBaseUrl(this HttpContext context)
         {
-            if(context == null)
+            if (context == null)
             {
                 return string.Empty;
             }
@@ -34,20 +34,31 @@ namespace TDL.Infrastructure.Extensions
 
         public static Guid GetUserId(this HttpContext context)
         {
-            return context != null && context.Items.TryGetValue(CommonConstant.Id, out var userId) 
-                ? (Guid)userId : Guid.Empty; 
+            string userIdClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+            var userId = context.User.Claims.FirstOrDefault(x => x.Type.Equals(userIdClaimType))?.Value;
+            return !string.IsNullOrEmpty(userId)
+                ? new Guid(userId) : Guid.Empty;
         }
 
         public static string GetUserName(this HttpContext context)
         {
-            return context != null && context.Items.TryGetValue(CommonConstant.UserName, out var username) 
-                ? (string)username : string.Empty;
+            string userNameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+
+            var username = context.User.Claims.FirstOrDefault(x => x.Type.Equals(userNameClaimType))?.Value;
+
+            return !string.IsNullOrEmpty(username)
+                ? username : string.Empty;
         }
 
         public static string GetUserRole(this HttpContext context)
         {
-            return context != null && context.Items.TryGetValue(CommonConstant.UserRole, out var userrole) 
-                ? (string)userrole : string.Empty;
-        } 
+            string userEmailClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+
+            var userEmail = context.User.Claims.FirstOrDefault(x => x.Type.Equals(userEmailClaimType))?.Value;
+
+            return !string.IsNullOrEmpty(userEmail)
+                ? userEmail : string.Empty;
+        }
     }
 }
