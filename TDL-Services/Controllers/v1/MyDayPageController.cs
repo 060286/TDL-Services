@@ -60,7 +60,7 @@ namespace TDL.APIs.Controllers.v1
 
         [AllowAnonymous]
         [HttpGet("todo-of-date")]
-        public IActionResult GetListTodoOfList([FromQuery] DateTime dateTime)
+        public IActionResult GetListTodoByDateTime([FromQuery] DateTime dateTime)
         {
             IList<TodoOfDateResponseDto> response = _todoService.GetTodoOfDate(dateTime);
 
