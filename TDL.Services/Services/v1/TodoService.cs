@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Exceptions;
 using TDL.Infrastructure.Extensions;
@@ -19,14 +21,20 @@ namespace TDL.Services.Services.v1
 
         private readonly IRepository<Todo> _todoRepository;
         private readonly IUnitOfWorkProvider _uow;
+        private readonly IRepository<TodoCategory> _todoCategoryRepository;
+        private readonly IRepository<SubTask> _subtaskRepository;
         private IMapper _mapper;
 
         public TodoService(IRepository<Todo> todoRepository,
             IUnitOfWorkProvider uow, 
+            IRepository<TodoCategory> todoCategoryRepository,
+            IRepository<SubTask> subtaskRepository,
             IMapper mapper)
         {
             _todoRepository = todoRepository;
             _uow = uow;
+            _todoCategoryRepository = todoCategoryRepository;
+            _subtaskRepository = subtaskRepository;
             _mapper = mapper;
         }
 
@@ -37,10 +45,15 @@ namespace TDL.Services.Services.v1
         public TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request)
         {
             using var scope = _uow.Provide();
-
+            string categoryDefault = "Personal";
             Guid id = Guid.NewGuid();
-
-            Todo response = BuildSimpleTodo(id, request.Title);
+            Guid categoryIdDefault = request.CategoryId == Guid.NewGuid()
+                ? _todoCategoryRepository.GetAll(true)
+                    .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault))!
+                    .Id
+                : request.CategoryId;
+                
+            Todo response = BuildSimpleTodo(id, request.Title, categoryIdDefault);
 
             _todoRepository.Add(response);
 
@@ -74,6 +87,7 @@ namespace TDL.Services.Services.v1
             DateTime sevenDaysBefore = now.AddDays(-7);
 
             var response = _todoRepository.GetAll(true)
+                .Include(x => x.TodoCategory)
                 .Where(td => td.CreatedAt > sevenDaysBefore && td.CreatedAt.Value != now)
                 .Where(td => string.IsNullOrEmpty(keyword) || td.Title.ContainInvariant(keyword))
                 .Take(20)
@@ -81,7 +95,7 @@ namespace TDL.Services.Services.v1
                 .Select(td => new SuggestionTodoItemResponse
                 {
                     Id = td.Id,
-                    CategoryName = td.CategoryName,
+                    CategoryName = td.TodoCategory.Title,
                     Title = td.Title,
                     CreatedAt = td.CreatedAt
                 }).ToList();
@@ -98,20 +112,20 @@ namespace TDL.Services.Services.v1
         {
             using var scope = _uow.Provide();
 
-            var response = _todoRepository.Get(todoId);
+            var response = _todoRepository.GetAll(true)
+                .Include(td => td.SubTasks)
+                .Select(td => new GetMyDayItemDetailResponseDto
+                {
+                    Id = td.Id,
+                    Title = td.Title,
+                    IsCompleted = td.IsCompleted,
+                    Description = td.Description,
+                    RemindedAt = td.RemindedAt,
+                    SubTasks = _subtaskRepository.GetAll(true)
+                        .Where(st => st.TodoId == td.Id).Select(st => st.Title).ToList()
+                }).FirstOrDefault(td => td.Id == todoId);
 
-            var result = new GetMyDayItemDetailResponseDto()
-            {
-                Id = response.Id,
-                Title = response.Title,
-                Description = response.Description,
-                IsCompleted = response.IsCompleted,
-                RemindedAt = response.RemindedAt,
-                SubTasks =  response.SubTasks?.Select(x => x.Title).ToList(),
-                Tag = null,
-            };
-
-            return result;
+            return response;
         }
 
         public IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime)
@@ -119,6 +133,7 @@ namespace TDL.Services.Services.v1
             using var scope = _uow.Provide();
 
             var response = _todoRepository.GetAll(true)
+                .Include(td => td.TodoCategory)
                 .Where(td => td.CreatedAt.Value.Date == dateTime.Date &&
                         td.CreatedAt.Value.Month == dateTime.Month &&
                         td.CreatedAt.Value.Year == dateTime.Year)
@@ -126,7 +141,7 @@ namespace TDL.Services.Services.v1
                 {
                     Id = td.Id,
                     Title = td.Title,
-                    TodoCategory = td.CategoryName,
+                    TodoCategory = td.TodoCategory.Title,
                     CreatedAt = (DateTime)td.CreatedAt,
                     IsCompleted= td.IsCompleted,
                     IsPinned = false
@@ -145,7 +160,7 @@ namespace TDL.Services.Services.v1
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
 
             // Update 
-            todo.CategoryName = request.TodoCategoryName;
+            todo.CategoryId = request.TodoCategoryId;
             todo.Title = request.Tittle;
             todo.Description = request.Description;
             todo.RemindedAt = request.RemindedAt;
@@ -170,14 +185,15 @@ namespace TDL.Services.Services.v1
             return dateRemind;
         }
 
-        private Todo BuildSimpleTodo(Guid id, string Title)
+        private Todo BuildSimpleTodo(Guid id, string title, Guid categoryId)
         {
             return new Todo
             {
                 Id = id,
-                Title = Title,
+                Title = title,
                 IsArchieved = false,
                 IsCompleted = false,
+                CategoryId = categoryId
             };
         }
 

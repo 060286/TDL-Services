@@ -26,7 +26,9 @@ namespace TDL.Domain.Entities
 
         public bool IsArchieved { get; set; }
 
-        public string CategoryName { get; set; }
+        public Guid CategoryId { get; set; }
+        
+        public virtual TodoCategory TodoCategory { get; set; }
 
         public virtual IList<SubTask> SubTasks { get; set; }
 

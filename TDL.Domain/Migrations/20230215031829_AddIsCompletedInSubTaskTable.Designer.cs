@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TDL.Domain.Context;
 
 namespace TDL.Domain.Migrations
 {
     [DbContext(typeof(TdlContext))]
-    partial class TdlContextModelSnapshot : ModelSnapshot
+    [Migration("20230215031829_AddIsCompletedInSubTaskTable")]
+    partial class AddIsCompletedInSubTaskTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,8 +117,8 @@ namespace TDL.Domain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -162,8 +164,6 @@ namespace TDL.Domain.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Todos");
                 });
@@ -317,15 +317,6 @@ namespace TDL.Domain.Migrations
                     b.HasOne("TDL.Domain.Entities.Todo", "Todo")
                         .WithMany("Tags")
                         .HasForeignKey("TodoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TDL.Domain.Entities.Todo", b =>
-                {
-                    b.HasOne("TDL.Domain.Entities.TodoCategory", "TodoCategory")
-                        .WithMany("Todos")
-                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

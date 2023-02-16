@@ -9,6 +9,8 @@ namespace TDL.Domain.Entities
 
         public string Title { get; set; }
 
+        public bool IsCompleted { get; set; } = false;
+
         public Guid TodoId { get; set; }
 
         public virtual Todo Todo { get; set; }

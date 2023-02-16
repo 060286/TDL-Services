@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using TDL.Infrastructure.Extensions;
 using TDL.Services.Dto.User;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -11,11 +8,11 @@ namespace TDL.APIs.Controllers.v1
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
     [Route("api/v{version:apiVersion}/user")]
-    public class UsesController : BaseController
+    public class UserController : BaseController
     {
         private readonly IUserService _userService;
 
-        public UsesController(IUserService userService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
         }
@@ -42,8 +39,6 @@ namespace TDL.APIs.Controllers.v1
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginRequestDto request)
         {
-            //HttpContext.User.
-
             UserLoginResponseDto response = _userService.LoginAndGetUserToken(request);
 
             return Ok(response);

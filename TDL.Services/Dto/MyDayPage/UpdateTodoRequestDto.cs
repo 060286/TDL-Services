@@ -12,7 +12,7 @@ namespace TDL.Services.Dto.MyDayPage
 
         public DateTime? RemindedAt { get; set; }
 
-        public string TodoCategoryName { get; set; }
+        public Guid TodoCategoryId { get; set; }
 
         public bool IsCompleted { get; set; }
 

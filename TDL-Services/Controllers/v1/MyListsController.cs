@@ -9,8 +9,10 @@ using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.APIs.Controllers.v1
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "v1")]
+    // [EnableCors(ConfigurationConstant.CorsPolicy)]
+    [Route("api/v{version:apiVersion}/all-list-page")]
     public class MyListsController : BaseController
     {
         private readonly ICategoryService _categoryService;
@@ -25,7 +27,7 @@ namespace TDL.APIs.Controllers.v1
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("create-todo-category")]
         public IActionResult CreateCategory([FromBody] CreateCategoryItemRequestDto request)
         {
             _categoryService.CreateCategoryItem(request);
@@ -41,7 +43,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("task-by-category")]
         public IActionResult GetTaskByCategory([FromQuery] MyListTodoItemRequestDto requestDto)
         {
-            var result = _categoryService.GetMyListTodosItem(requestDto);
+            var result = _categoryService.GetMyListTodosItem(requestDto, UserName);
             
             return Ok(result);
         }
@@ -52,6 +54,14 @@ namespace TDL.APIs.Controllers.v1
             var result = _categoryService.GetCategoryByUserName(UserName);
             
             return Ok(result);
+        }
+
+        [HttpPost("create-subtask")]
+        public IActionResult CreateSubtask([FromBody] CreateSubtaskRequestDto requestDto)
+        {
+            _categoryService.CreateSubtask(request: requestDto);
+            
+            return Ok();
         }
     }
 }

@@ -31,7 +31,9 @@ namespace TDL.Domain.Context
 
         public TdlContext Create()
         {
-            return new TdlContext(_contextOptions, _entityTypeConfigurations, _appSettings, null, _httpContextAccessor.HttpContext.GetTimeZone());
+            var userName = _httpContextAccessor.HttpContext.GetUserName();
+            
+            return new TdlContext(_contextOptions, _entityTypeConfigurations, _appSettings, userName, _httpContextAccessor.HttpContext.GetTimeZone());
         }
     }
 }

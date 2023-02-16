@@ -14,6 +14,10 @@ namespace TDL.Domain.EntityMapping
             builder.Property(td => td.Title).IsRequired();
 
             builder.HasIndex(nameof(TodoCategory.Title));
+
+            builder.HasMany<Todo>(x => x.Todos)
+                .WithOne(x => x.TodoCategory)
+                .HasForeignKey(x => x.CategoryId);
         }
     }
 }

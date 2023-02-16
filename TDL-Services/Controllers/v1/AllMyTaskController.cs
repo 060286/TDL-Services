@@ -1,10 +1,11 @@
-﻿using System;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using TDL.Infrastructure.Constants;
 using TDL.Services.Dto.MyDayPage;
+using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.APIs.Controllers.v1
 {
@@ -14,14 +15,19 @@ namespace TDL.APIs.Controllers.v1
     [Route("api/v{version:apiVersion}/allmytask-page")]
     public class AllMyTaskController : BaseController
     {
-        //[HttpGet("all-task")]
-        //[AllowAnonymous]
-        //public IActionResult GetAllTask(DateTime dateTime)
-        //{
-        //    var response = _allMyTaskPageService.GetAllTask(dateTime);
+        private readonly IAllMyTaskPageService _allMyTaskPageService;
 
-        //    return Ok(response);
-        //}
+        public AllMyTaskController(IAllMyTaskPageService allMyTaskPageService)
+        {
+            _allMyTaskPageService = allMyTaskPageService;
+        }
+
+        [HttpGet("all-task")]
+        public IActionResult GetAllTask(DateTime dateTime)
+        {
+            var response = _allMyTaskPageService.GetAllTask(dateTime);
+
+            return Ok(response);
+        }
     }
-    
 }

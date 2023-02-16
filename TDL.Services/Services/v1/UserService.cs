@@ -39,7 +39,7 @@ namespace TDL.Services.Services.v1
             using var scope = _uowProvider.Provide();
 
             var user = _userRepository.GetAll()
-                .FirstOrDefault(us => us.UserName.EqualsInvariant(request.UserName) 
+                .FirstOrDefault(us => us.Email.EqualsInvariant(request.UserName) 
                                       && us.Password.EqualsInvariant(request.Password));
 
             Guard.ThrowIfNull<UnauthorizedAccessException>(user, ExceptionConstant.RestrictedResource);
@@ -81,18 +81,21 @@ namespace TDL.Services.Services.v1
         {
             using var scope = _uowProvider.Provide();
 
+            bool isCorrectPassword = request.Password.EqualsInvariant(request.ConfirmedPassword);
             Guid userId = Guid.NewGuid();
 
-            User account = new User
+            Guard.ThrowByCondition<BusinessLogicException>(!isCorrectPassword, "Please input correct password!");
+
+            _userRepository.Add(new User
             {
                 Id = userId,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                PhoneNumber = request.PhoneNumber
-            };
-
-            _userRepository.Add(account);
+                PhoneNumber = request.PhoneNumber,
+                UserName = request.UserName,
+                Password = request.Password,
+            });
 
             scope.Complete();
         }
