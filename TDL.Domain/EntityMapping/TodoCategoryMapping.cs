@@ -17,7 +17,8 @@ namespace TDL.Domain.EntityMapping
 
             builder.HasMany<Todo>(x => x.Todos)
                 .WithOne(x => x.TodoCategory)
-                .HasForeignKey(x => x.CategoryId);
+                .HasForeignKey(x => x.CategoryId)
+                .IsRequired(false);
         }
     }
 }

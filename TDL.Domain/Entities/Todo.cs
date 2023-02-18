@@ -22,16 +22,20 @@ namespace TDL.Domain.Entities
 
         public DateTime? RemindedAt { get; set; }
 
-        public bool IsCompleted { get; set; }
+        public bool IsCompleted { get; set; } = false;
 
-        public bool IsArchieved { get; set; }
+        public bool IsArchieved { get; set; } = false;
 
         public Guid CategoryId { get; set; }
+
+        public Guid? WorkspaceId { get; set; }
         
         public virtual TodoCategory TodoCategory { get; set; }
 
         public virtual IList<SubTask> SubTasks { get; set; }
 
         public virtual IList<Tag> Tags { get; set; }
+        
+        public virtual Workspace Workspace { get; set; }
     }
 }

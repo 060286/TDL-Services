@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using TDL.Domain.Entities;
+using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Exceptions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
 using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
@@ -20,16 +21,19 @@ namespace TDL.Services.Services.v1
         private readonly IUnitOfWorkProvider _uow;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<UserWorkspace> _userWorkspaceRepository;
+        private readonly IRepository<Todo> _todoRepository;
 
         public WorkspaceService(IRepository<Workspace> workspaceRepository,
             IUnitOfWorkProvider uow,
             IRepository<User> userRepository, 
-            IRepository<UserWorkspace> userWorkspaceRepository)
+            IRepository<UserWorkspace> userWorkspaceRepository,
+            IRepository<Todo> todoRepository)
         {
             _uow = uow;
             _workspaceRepository = workspaceRepository;
             _userRepository = userRepository;
             _userWorkspaceRepository = userWorkspaceRepository;
+            _todoRepository = todoRepository;
         }
 
         public void CreateWorkspace(CreateWorkspaceRequestDto request)
@@ -51,7 +55,7 @@ namespace TDL.Services.Services.v1
             {
                 Guid userWorkspaceId = Guid.NewGuid();
                 bool isExits = _userRepository.GetAll()
-                    .Where(x => x.Id == id).Any();
+                    .Any(x => x.Id == id);
 
                 Guard.ThrowByCondition<NotFoundException>(!isExits, nameof(User));
 
@@ -65,6 +69,28 @@ namespace TDL.Services.Services.v1
                 _userWorkspaceRepository.Add(userWorkspace);
             }
 
+            scope.Complete();
+        }
+
+        public void CreateTodoInWorkspace(CreateTodoWorkspaceRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            var workspace = _workspaceRepository.Get(request.WorkspaceId);
+            
+            Guard.ThrowIfNull<NotFoundException>(workspace, nameof(Workspace));
+
+            var todo = new Todo
+            {
+                Id = Guid.NewGuid(),
+                Description = request.Description,
+                RemindedAt = request.RemindedAt,
+                Title = request.Title,
+                Status = request.Status,
+            };
+            
+            _todoRepository.Add(todo);
+            
             scope.Complete();
         }
     }

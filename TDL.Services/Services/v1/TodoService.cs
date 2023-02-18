@@ -42,18 +42,29 @@ namespace TDL.Services.Services.v1
 
         #region public method
 
-        public TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request)
+        public TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request, string userName)
         {
             using var scope = _uow.Provide();
             string categoryDefault = "Personal";
             Guid id = Guid.NewGuid();
-            Guid categoryIdDefault = request.CategoryId == Guid.NewGuid()
-                ? _todoCategoryRepository.GetAll(true)
-                    .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault))!
-                    .Id
-                : request.CategoryId;
-                
-            Todo response = BuildSimpleTodo(id, request.Title, categoryIdDefault);
+            Guid categoryId = Guid.Empty;
+            
+            
+            // Guid categoryIdDefault = request.CategoryId == Guid.NewGuid()
+            //     ? _todoCategoryRepository.GetAll(true)
+            //         .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault))!
+            //         .Id
+            //     : request.CategoryId;
+
+            if (!request.CategoryId.HasValue)
+            {
+                categoryId = _todoCategoryRepository.GetAll(true)
+                    .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault)
+                                           && tdc.CreatedBy.EqualsInvariant(userName))!
+                    .Id;
+            }
+            
+            Todo response = BuildSimpleTodo(id, request.Title, categoryId);
 
             _todoRepository.Add(response);
 
@@ -159,7 +170,6 @@ namespace TDL.Services.Services.v1
 
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
 
-            // Update 
             todo.CategoryId = request.TodoCategoryId;
             todo.Title = request.Tittle;
             todo.Description = request.Description;

@@ -20,7 +20,7 @@ namespace TDL.Services.Configurations
                 .Where(c => c.Name.EndsWith("Service"))
                 .AsPublicImplementedInterfaces(ServiceLifetime.Scoped);
 
-            services.AddScoped<ITodoService, TodoService>();
+            // services.AddScoped<ITodoService, TodoService>();
 
             services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 

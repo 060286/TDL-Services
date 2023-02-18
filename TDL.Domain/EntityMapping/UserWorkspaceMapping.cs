@@ -11,11 +11,13 @@ namespace TDL.Domain.EntityMapping
         {
             builder.HasOne(uw => uw.User)
                 .WithMany(uw => uw.UserWorkspaces)
-                .HasForeignKey(uw => uw.UserId);
+                .HasForeignKey(uw => uw.UserId)
+                .IsRequired(false);
 
             builder.HasOne(uw => uw.Workspace)
                 .WithMany(uw => uw.UserWorkspaces)
-                .HasForeignKey(uw => uw.WorkspaceId);
+                .HasForeignKey(uw => uw.WorkspaceId)
+                .IsRequired(false);
         }
     }
 }

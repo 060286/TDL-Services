@@ -12,11 +12,13 @@ namespace TDL.Domain.EntityMapping
 
             builder.HasMany<SubTask>(todo => todo.SubTasks)
                 .WithOne(todo => todo.Todo)
-                .HasForeignKey(todo => todo.TodoId);
+                .HasForeignKey(todo => todo.TodoId)
+                .IsRequired(false);
 
             builder.HasMany<Tag>(todo => todo.Tags)
                 .WithOne(todo => todo.Todo)
-                .HasForeignKey(todo => todo.TodoId);
+                .HasForeignKey(todo => todo.TodoId)
+                .IsRequired(false);
         }
     }
 }

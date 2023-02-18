@@ -9,7 +9,7 @@ namespace TDL.Services.Services.v1.Interfaces
     {
         GetMyDayItemDetailResponseDto GetTodoById(Guid todoId);
 
-        TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request);
+        TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request, string userName);
 
         void UpdateTodo(UpdateTodoRequestDto request);
 

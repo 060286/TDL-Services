@@ -161,9 +161,14 @@ namespace TDL.Domain.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Todos");
                 });
@@ -228,9 +233,11 @@ namespace TDL.Domain.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Img")
@@ -240,15 +247,18 @@ namespace TDL.Domain.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("LoginCount")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -296,6 +306,7 @@ namespace TDL.Domain.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -307,42 +318,36 @@ namespace TDL.Domain.Migrations
                 {
                     b.HasOne("TDL.Domain.Entities.Todo", "Todo")
                         .WithMany("SubTasks")
-                        .HasForeignKey("TodoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TodoId");
                 });
 
             modelBuilder.Entity("TDL.Domain.Entities.Tag", b =>
                 {
                     b.HasOne("TDL.Domain.Entities.Todo", "Todo")
                         .WithMany("Tags")
-                        .HasForeignKey("TodoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TodoId");
                 });
 
             modelBuilder.Entity("TDL.Domain.Entities.Todo", b =>
                 {
                     b.HasOne("TDL.Domain.Entities.TodoCategory", "TodoCategory")
                         .WithMany("Todos")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("TDL.Domain.Entities.Workspace", "Workspace")
+                        .WithMany("Todos")
+                        .HasForeignKey("WorkspaceId");
                 });
 
             modelBuilder.Entity("TDL.Domain.Entities.UserWorkspace", b =>
                 {
                     b.HasOne("TDL.Domain.Entities.User", "User")
                         .WithMany("UserWorkspaces")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.HasOne("TDL.Domain.Entities.Workspace", "Workspace")
                         .WithMany("UserWorkspaces")
-                        .HasForeignKey("WorkspaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WorkspaceId");
                 });
 #pragma warning restore 612, 618
         }

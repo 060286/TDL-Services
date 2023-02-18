@@ -22,6 +22,12 @@ namespace TDL.APIs.Controllers.v1
             _allMyTaskPageService = allMyTaskPageService;
         }
 
+        
+        /// <summary>
+        /// Get All Task In All Task Page
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
         [HttpGet("all-task")]
         public IActionResult GetAllTask(DateTime dateTime)
         {

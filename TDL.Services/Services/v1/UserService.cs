@@ -83,10 +83,12 @@ namespace TDL.Services.Services.v1
 
             bool isCorrectPassword = request.Password.EqualsInvariant(request.ConfirmedPassword);
             Guid userId = Guid.NewGuid();
+            Guid categoryId = Guid.NewGuid();
+            string defaultCategory = "Personal";
 
             Guard.ThrowByCondition<BusinessLogicException>(!isCorrectPassword, "Please input correct password!");
 
-            _userRepository.Add(new User
+            User newUser = new User
             {
                 Id = userId,
                 Email = request.Email,
@@ -95,7 +97,17 @@ namespace TDL.Services.Services.v1
                 PhoneNumber = request.PhoneNumber,
                 UserName = request.UserName,
                 Password = request.Password,
-            });
+            };
+
+            TodoCategory newTodoCategory = new TodoCategory
+            {
+                Id = categoryId,
+                Description = defaultCategory,
+                Title = defaultCategory,
+            };
+
+            _userRepository.Add(newUser);
+            _todoCategoryRepository.Add(newTodoCategory);
 
             scope.Complete();
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Enums;
@@ -121,6 +122,20 @@ namespace TDL.Services.Services.v1
             _subtaskRepository.Add(subtask);
             
             scope.Complete();
+        }
+
+        public DefaultCategoryIdResponseDto GetDefaultCategoryId(string userName)
+        {
+            using var scope = _uowProvider.Provide();
+            string defaultCategoryName = "Personal";
+
+            var id = _todoCategoryRepository.GetAll(true)
+                .FirstOrDefault(ct => ct.Title == defaultCategoryName)?.Id;
+
+            return new DefaultCategoryIdResponseDto()
+            {
+                Id = id
+            };
         }
     }
 }

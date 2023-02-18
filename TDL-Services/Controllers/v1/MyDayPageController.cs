@@ -22,16 +22,25 @@ namespace TDL.APIs.Controllers.v1
             _todoService = todoService;
         }
 
+        /// <summary>
+        /// My Day Page
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("simple-todo")]
-        [AllowAnonymous]
         public IActionResult CreateSimpleTodo([FromBody] CreateSimpleTodoRequestDto request)
         {
-            var response = _todoService.CreateSimpleTodo(request);
+            
+            var response = _todoService.CreateSimpleTodo(request, UserName);
 
             return Ok(response);
         }
 
-        [AllowAnonymous]
+        /// <summary>
+        /// Get Detail Todo
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}/todo")]
         public IActionResult GetById(Guid id)
         {
@@ -40,7 +49,11 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        [AllowAnonymous]
+        /// <summary>
+        /// Update Todo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPut("{id}/todo")]
         public IActionResult UpdateTodo([FromBody] UpdateTodoRequestDto request)
         {
@@ -49,7 +62,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok();
         }
 
-        [AllowAnonymous]
         [HttpGet("todos")]
         public IActionResult GetAllToDo()
         {
@@ -58,7 +70,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpGet("todo-of-date")]
         public IActionResult GetListTodoByDateTime([FromQuery] DateTime dateTime)
         {
@@ -67,7 +78,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpGet("todo-suggestions-list")]
         public IActionResult GetSuggestTodoList(string keyword)
         {

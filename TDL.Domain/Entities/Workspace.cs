@@ -11,7 +11,9 @@ namespace TDL.Domain.Entities
         public string Name { get; set; }
 
         public string Description { get; set; }
-
+        
         public IList<UserWorkspace> UserWorkspaces { get; set; }
+        
+        public virtual IList<Todo> Todos { get; set; }
     }
 }

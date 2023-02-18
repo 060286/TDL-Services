@@ -18,11 +18,18 @@ namespace TDL.APIs.Controllers.v1
             _workspaceService = workspaceService;
         }
 
-        [HttpPost]
-        [AllowAnonymous]
+        [HttpPost("workspace")]
         public IActionResult CreateWorkspace([FromBody] CreateWorkspaceRequestDto request)
         {
             _workspaceService.CreateWorkspace(request);
+
+            return Ok();
+        }
+
+        [HttpPost("todo-in-workspace")]
+        public IActionResult CreateTodoInWorkspace([FromBody] CreateTodoWorkspaceRequestDto request)
+        {
+            _workspaceService.CreateTodoInWorkspace(request);
 
             return Ok();
         }

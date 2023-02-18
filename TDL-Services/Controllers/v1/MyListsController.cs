@@ -34,6 +34,18 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok();
         }
+
+        /// <summary>
+        /// Get Default Category Id
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("default-category-id")]
+        public IActionResult GetDefaultCategoryId()
+        {
+            var response = _categoryService.GetDefaultCategoryId(UserName);
+            
+            return Ok(response);
+        }
     
         /// <summary>
         /// Get Todos by category name
