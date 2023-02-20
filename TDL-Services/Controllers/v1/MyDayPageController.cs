@@ -85,5 +85,19 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(response);
         }
+
+        [HttpGet("change-todo-category")]
+        public IActionResult ChangeTodoCategory([FromQuery] ChangeTodoCategoryRequestDto request)
+        {
+            var response = _todoService.ChangeCategoryTitle(request, UserName);
+
+            return Ok(response);
+        }
+
+        [HttpGet("change-tag")]
+        public IActionResult ChangeTodoTag([FromQuery] ChangeTodoTagRequestDto request)
+        {
+            return Ok();
+        }
     }
 }

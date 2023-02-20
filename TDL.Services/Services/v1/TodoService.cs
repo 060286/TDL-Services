@@ -113,10 +113,39 @@ namespace TDL.Services.Services.v1
 
             foreach(var item in response)
             {
-                item.DateRemind = BuildDateRemind((DateTime)item.CreatedAt);
+                if (item.CreatedAt != null) item.DateRemind = BuildDateRemind((DateTime)item.CreatedAt);
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Change Todo Category of Todo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public string ChangeCategoryTitle(ChangeTodoCategoryRequestDto request, string userName)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .FirstOrDefault(td => td.Id.Equals(request.TodoId));
+            var oldCategory = _todoCategoryRepository.GetAll(true)
+                .FirstOrDefault(tdc => tdc.Id.Equals(todo.CategoryId) &&
+                                       tdc.CreatedBy.EqualsInvariant(userName));
+
+            var newCategory = _todoCategoryRepository.GetAll(true)
+                .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(request.CategoryName) &&
+                                       tdc.CreatedBy.EqualsInvariant(userName));
+                
+            Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
+            Guard.ThrowIfNull<NotFoundException>(oldCategory, nameof(TodoCategory));
+            Guard.ThrowIfNull<NotFoundException>(newCategory, nameof(TodoCategory));
+
+            todo.CategoryId = newCategory.Id;
+
+            return newCategory.Title;
         }
 
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
