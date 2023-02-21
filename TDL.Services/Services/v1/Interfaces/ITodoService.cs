@@ -20,5 +20,9 @@ namespace TDL.Services.Services.v1.Interfaces
         IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword);
 
         string ChangeCategoryTitle(ChangeTodoCategoryRequestDto request, string userName);
+
+        void ArchieTodo(Guid id);
+
+        void CompletedTodo(Guid id);
     }
 }

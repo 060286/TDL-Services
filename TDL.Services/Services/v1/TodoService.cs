@@ -148,6 +148,35 @@ namespace TDL.Services.Services.v1
             return newCategory.Title;
         }
 
+        public void ArchieTodo(Guid id)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .IgnoreQueryFilters()
+                .FirstOrDefault(tdc => tdc.Id.Equals(id));
+            
+            Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
+            
+            _todoRepository.Delete(todo);
+            
+            scope.Complete();
+        }
+
+        public void CompletedTodo(Guid id)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .FirstOrDefault(td => td.Equals(id));
+            
+            Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
+
+            todo.IsCompleted = !todo.IsCompleted;
+
+            scope.Complete();
+        }
+
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
         {
             using var scope = _uow.Provide();
