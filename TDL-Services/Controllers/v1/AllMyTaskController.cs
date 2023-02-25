@@ -35,5 +35,11 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(response);
         }
+
+        [HttpGet("testing-commit-with-source-tree")]
+        public IActionResult TestingCommitWithSourceTree()
+        {
+            return Ok();
+        }
     }
 }
