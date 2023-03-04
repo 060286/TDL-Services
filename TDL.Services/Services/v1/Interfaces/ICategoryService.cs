@@ -12,7 +12,7 @@ namespace TDL.Services.Services.v1.Interfaces
 
         IList<MyListTodoItemResponse> GetMyListTodosItem(MyListTodoItemRequestDto request, string userName);
 
-        void CreateSubtask(CreateSubtaskRequestDto request);
+        CreateSubTaskResponseDto CreateSubTask(CreateSubtaskRequestDto request);
 
         DefaultCategoryIdResponseDto GetDefaultCategoryId(string userName);
     }

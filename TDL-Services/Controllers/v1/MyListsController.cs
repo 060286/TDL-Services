@@ -69,11 +69,11 @@ namespace TDL.APIs.Controllers.v1
         }
 
         [HttpPost("create-subtask")]
-        public IActionResult CreateSubtask([FromBody] CreateSubtaskRequestDto requestDto)
+        public IActionResult CreateSubTask([FromBody] CreateSubtaskRequestDto requestDto)
         {
-            _categoryService.CreateSubtask(request: requestDto);
+            var result = _categoryService.CreateSubTask(request: requestDto);
             
-            return Ok();
+            return Ok(result);
         }
     }
 }

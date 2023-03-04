@@ -24,5 +24,7 @@ namespace TDL.Services.Services.v1.Interfaces
         void ArchieTodo(Guid id);
 
         void CompletedTodo(Guid id);
+
+        int CountTaskNotCompleted(DateTime dateTime, string userName);
     }
 }

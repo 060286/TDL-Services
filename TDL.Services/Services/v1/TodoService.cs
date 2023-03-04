@@ -177,6 +177,17 @@ namespace TDL.Services.Services.v1
             scope.Complete();
         }
 
+        public int CountTaskNotCompleted(DateTime dateTime, string userName)
+        {
+            using var scope = _uow.Provide();
+
+            var notCompletedCount = _todoRepository.GetAll(true)
+                .Where(x => x.IsCompleted && x.CreatedAt.Equals(dateTime))
+                .Count(x => x.CreatedBy.EqualsInvariant(userName));
+
+            return notCompletedCount;
+        }
+
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
         {
             using var scope = _uow.Provide();
@@ -191,7 +202,12 @@ namespace TDL.Services.Services.v1
                     Description = td.Description,
                     RemindedAt = td.RemindedAt,
                     SubTasks = _subtaskRepository.GetAll(true)
-                        .Where(st => st.TodoId == td.Id).Select(st => st.Title).ToList()
+                        .Where(st => st.TodoId == td.Id).Select(st => new SubTaskResponse()
+                        {
+                            Id = st.Id,
+                            IsCompleted = st.IsCompleted,
+                            Name = st.Title
+                        }).ToList()
                 }).FirstOrDefault(td => td.Id == todoId);
 
             return response;

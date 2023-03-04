@@ -108,20 +108,26 @@ namespace TDL.Services.Services.v1
             }).ToList();
         }
 
-        public void CreateSubtask(CreateSubtaskRequestDto request)
+        public CreateSubTaskResponseDto CreateSubTask(CreateSubtaskRequestDto request)
         {
             using var scope = _uowProvider.Provide();
 
-            SubTask subtask = new SubTask
+            SubTask subTask = new SubTask
             {
                 Id = Guid.NewGuid(),
                 Title = request.Name,
                 TodoId = request.TodoId,
             };
             
-            _subtaskRepository.Add(subtask);
+            _subtaskRepository.Add(subTask);
             
             scope.Complete();
+
+            return new CreateSubTaskResponseDto()
+            {
+                Id = subTask.Id,
+                Title = subTask.Title,
+            };
         }
 
         public DefaultCategoryIdResponseDto GetDefaultCategoryId(string userName)

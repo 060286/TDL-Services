@@ -31,5 +31,18 @@ namespace TDL.APIs.Controllers.v1
             
             return Ok();
         }
+
+        [HttpGet("not-completed-task-count")]
+        public IActionResult CountTaskNotCompleted([FromQuery] DateTime dateTime)
+        {
+            var response = _todoService.CountTaskNotCompleted(dateTime: dateTime, userName: UserName);
+
+            object result = new
+            {
+                count = response
+            };
+            
+            return Ok(result);
+        }
     }
 }
