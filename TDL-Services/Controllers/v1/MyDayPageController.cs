@@ -99,5 +99,13 @@ namespace TDL.APIs.Controllers.v1
         {
             return Ok();
         }
+
+        [HttpPut("/{id}/subtask-complete-status")]
+        public IActionResult UpdateSubTaskCompletedStatus(Guid id)
+        {
+            _todoService.UpdateSubTaskStatus(id);
+
+            return Ok();
+        } 
     }
 }

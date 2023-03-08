@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TDL.Domain.Entities;
 using TDL.Services.Dto.User;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -25,6 +26,16 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok();
         }
+
+        [AllowAnonymous]
+        [HttpPost("add-dummy-tags")]
+        public IActionResult AddDummyTag([FromBody] TagDummyRequestDto tag)
+        {
+            _userService.CreateDummyTag(tag);
+            
+            return Ok();
+        }
+        
 
         [AllowAnonymous]
         [HttpGet("search-user")]

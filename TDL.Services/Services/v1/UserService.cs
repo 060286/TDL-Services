@@ -24,12 +24,16 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<User> _userRepository;
         private readonly IUnitOfWorkProvider _uowProvider;
         private readonly IRepository<TodoCategory> _todoCategoryRepository;
+        private readonly IRepository<Tag> _tagRepository;
 
-        public UserService(IRepository<User> userRepository, IUnitOfWorkProvider uowProvider, IRepository<TodoCategory> todoCategoryRepository)
+        public UserService(IRepository<User> userRepository, IUnitOfWorkProvider uowProvider,
+            IRepository<TodoCategory> todoCategoryRepository,
+            IRepository<Tag> tagRepository)
         {
             _userRepository = userRepository;
             _uowProvider = uowProvider;
             _todoCategoryRepository = todoCategoryRepository;
+            _tagRepository = tagRepository;
         }
 
         #endregion
@@ -75,6 +79,28 @@ namespace TDL.Services.Services.v1
             scope.Complete();
 
             return response;
+        }
+
+        public void CreateDummyTag(TagDummyRequestDto tag)
+        {
+            using var scope = _uowProvider.Provide();
+
+            var response = _tagRepository.GetAll(true)
+                .FirstOrDefault(x => x.Title.EqualsInvariant(tag.Title));
+            
+            Guard.ThrowByCondition<BusinessLogicException>(response != null, "Can not create duplicate tag");
+
+            Tag result = new Tag()
+            {
+                Id = Guid.NewGuid(),
+                Title = tag.Title,
+                Color = tag.Color,
+                TodoId = tag.TodoId,
+            };
+            
+            _tagRepository.Add(result);
+            
+            scope.Complete();
         }
 
         public void RegisterAccount(RegisterAccountRequestDto request)

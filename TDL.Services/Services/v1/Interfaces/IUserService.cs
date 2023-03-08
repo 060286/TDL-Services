@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TDL.Domain.Entities;
 using TDL.Services.Dto.User;
 
 namespace TDL.Services.Services.v1.Interfaces
@@ -13,5 +14,7 @@ namespace TDL.Services.Services.v1.Interfaces
         UserLoginResponseDto LoginAndGetUserToken(UserLoginRequestDto request);
 
         UserInfoDetailResponseDto GetUserInfo(Guid id);
+
+        void CreateDummyTag(TagDummyRequestDto tag);
     }
 }

@@ -26,5 +26,7 @@ namespace TDL.Services.Services.v1.Interfaces
         void CompletedTodo(Guid id);
 
         int CountTaskNotCompleted(DateTime dateTime, string userName);
+
+        void UpdateSubTaskStatus(Guid id);
     }
 }

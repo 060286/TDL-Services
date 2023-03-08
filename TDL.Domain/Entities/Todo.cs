@@ -16,6 +16,8 @@ namespace TDL.Domain.Entities
 
         public string Status { get; set; }
 
+        public string Priority { get; set; }
+
         //public IFormFile AttachmentFile { get; set; }
 
         public string FileName { get; set; }

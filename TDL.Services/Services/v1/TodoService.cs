@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
+using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Exceptions;
 using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
@@ -186,6 +187,20 @@ namespace TDL.Services.Services.v1
                 .Count(x => x.CreatedBy.EqualsInvariant(userName));
 
             return notCompletedCount;
+        }
+
+        public void UpdateSubTaskStatus(Guid id)
+        {
+            using var scope = _uow.Provide();
+
+            var subTask = _subtaskRepository.GetAll()
+                .FirstOrDefault(st => st.Id.Equals(id));
+
+            Guard.ThrowIfNull<NotFoundException>(subTask, string.Format(ExceptionConstant.NotFound, nameof(SubTask)));
+
+            subTask.IsCompleted = !subTask.IsCompleted;
+
+            scope.Complete();
         }
 
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
