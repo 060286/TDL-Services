@@ -1,10 +1,6 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using TDL.Infrastructure.Constants;
 using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
