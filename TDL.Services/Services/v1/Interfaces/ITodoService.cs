@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TDL.Domain.Entities;
+using TDL.Services.Dto.Color;
 using TDL.Services.Dto.MyDayPage;
 
 namespace TDL.Services.Services.v1.Interfaces
@@ -28,5 +29,11 @@ namespace TDL.Services.Services.v1.Interfaces
         int CountTaskNotCompleted(DateTime dateTime, string userName);
 
         void UpdateSubTaskStatus(Guid id);
+
+        GetMyDayItemDetailResponseDto UpdateTodoTitle(Guid id,string title);
+
+        GetMyDayItemDetailResponseDto UpdateTodoDescription(Guid id, string description);
+
+        IList<ColorDto> GetTagList();
     }
 }

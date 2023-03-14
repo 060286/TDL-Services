@@ -11,6 +11,7 @@ using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
 using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using TDL.Infrastructure.Utilities;
+using TDL.Services.Dto.Color;
 using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -201,6 +202,101 @@ namespace TDL.Services.Services.v1
             subTask.IsCompleted = !subTask.IsCompleted;
 
             scope.Complete();
+        }
+
+        public GetMyDayItemDetailResponseDto UpdateTodoTitle(Guid id, string title)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .Include(x => x.SubTasks)
+                .FirstOrDefault(td => td.Id == id);
+
+            Guard.ThrowIfNull<NotFoundException>(todo, "Not Found Todo");
+            
+            todo.Title = title;
+
+            scope.SaveChanges();
+            scope.Complete();
+
+            return new GetMyDayItemDetailResponseDto()
+            {
+                Id = todo.Id,
+                Title = title,
+                Description = todo.Description,
+                IsCompleted = todo.IsCompleted,
+                RemindedAt = todo.RemindedAt,
+                SubTasks = todo.SubTasks.Select(st => new SubTaskResponse()
+                {
+                    Id = st.Id,
+                    IsCompleted = st.IsCompleted,
+                    Name = st.Title
+                }).ToList(),
+            };
+        }
+
+        public GetMyDayItemDetailResponseDto UpdateTodoDescription(Guid id, string description)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .Include(x => x.SubTasks)
+                .FirstOrDefault(td => td.Id == id);
+
+            Guard.ThrowIfNull<NotFoundException>(todo, "Not Found Todo");
+
+            todo.Description = description;
+
+            scope.SaveChanges();
+            scope.Complete();
+
+            return new GetMyDayItemDetailResponseDto()
+            {
+                Id = todo.Id,
+                Title = todo.Title,
+                Description = description,
+                IsCompleted = todo.IsCompleted,
+                RemindedAt = todo.RemindedAt,
+                SubTasks = todo.SubTasks.Select(st => new SubTaskResponse()
+                {
+                    Id = st.Id,
+                    IsCompleted = st.IsCompleted,
+                    Name = st.Title
+                }).ToList(),
+            };
+        }
+
+        public IList<ColorDto> GetTagList()
+        {
+            IList<ColorDto> tagList = new List<ColorDto>()
+            {
+                new ColorDto()
+                {
+                    Text = ColorConstant.Nothing,
+                    BackgroundColor = "#Ecc506",
+                    Color = "#FFFFFF"
+                },
+                new ColorDto()
+                {
+                    Text = ColorConstant.Priority,
+                    BackgroundColor = "#F8D220",
+                    Color = "#FFFFFF"
+                },
+                new ColorDto()
+                {
+                    Text = ColorConstant.Important,
+                    BackgroundColor = "#47ec06",
+                    Color = "#FFFFFF"
+                },
+                new ColorDto()
+                {
+                    Text = ColorConstant.TrackBack,
+                    BackgroundColor = "#47ec06",
+                    Color = "#FFFFFF"
+                },
+            };
+
+            return tagList;
         }
 
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)

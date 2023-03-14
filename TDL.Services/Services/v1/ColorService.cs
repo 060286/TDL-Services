@@ -46,7 +46,7 @@ namespace TDL.Services.Services.v1
             {
                 return new ColorDto()
                 {
-                    Text = ColorConstant.Important,
+                    Text = ColorConstant.Nothing,
                     BackgroundColor = "#Ecc506",
                     Color = "#FFFFFF"
                 };
@@ -62,11 +62,11 @@ namespace TDL.Services.Services.v1
                 };
             }
             
-            if (text.EqualsInvariant(ColorConstant.Important))
+            if (text.EqualsInvariant(ColorConstant.TrackBack))
             {
                 return new ColorDto()
                 {
-                    Text = ColorConstant.Important,
+                    Text = ColorConstant.TrackBack,
                     BackgroundColor = "#47ec06",
                     Color = "#FFFFFF"
                 };

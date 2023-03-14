@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Microsoft.AspNetCore.Authorization;
 using TDL.Services.Dto.TodoDto;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -46,5 +47,40 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(result);
         }
+
+        [HttpPut("{id}/update-todo-title")]
+        public IActionResult UpdateTitleOfTodo(Guid id, [FromBody] UpdateTitleOfTodoRequest request)
+        {
+            var response = _todoService.UpdateTodoTitle(id, request.Title);
+
+            return Ok(response);
+        }
+
+        [HttpPut("{id}/update-todo-description")]
+        public IActionResult UpdateDescriptionOfTodo(Guid id, [FromBody] UpdateDescriptionOfTodoRequest request)
+        {
+            var response = _todoService.UpdateTodoTitle(id, request.Description);
+
+            return Ok(response);
+        }
+
+        [HttpGet("tags-list")]
+        [AllowAnonymous]
+        public IActionResult GetTagsList()
+        {
+            var response = _todoService.GetTagList();
+
+            return Ok(response);
+        }
+    }
+
+    public class UpdateTitleOfTodoRequest
+    {
+        public string Title { get; set; }
+    }
+
+    public class UpdateDescriptionOfTodoRequest
+    {
+        public string Description { get; set; }
     }
 }
