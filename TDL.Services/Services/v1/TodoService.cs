@@ -165,18 +165,21 @@ namespace TDL.Services.Services.v1
             scope.Complete();
         }
 
-        public void CompletedTodo(Guid id)
+        public Todo CompletedTodo(Guid id)
         {
             using var scope = _uow.Provide();
 
             var todo = _todoRepository.GetAll()
-                .FirstOrDefault(td => td.Equals(id));
+                .FirstOrDefault(td => td.Id == id);
             
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
 
             todo.IsCompleted = !todo.IsCompleted;
 
+            scope.SaveChanges();
             scope.Complete();
+
+            return todo;
         }
 
         public int CountTaskNotCompleted(DateTime dateTime, string userName)

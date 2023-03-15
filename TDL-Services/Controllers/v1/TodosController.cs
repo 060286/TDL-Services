@@ -27,12 +27,12 @@ namespace TDL.APIs.Controllers.v1
             return Ok();
         }
 
-        [HttpPut("/{id}/completed-todo")]
+        [HttpPut("{id}/completed-todo")]
         public IActionResult CompletedTodo(Guid id)
         {
-            _todoService.CompletedTodo(id);
+            var response = _todoService.CompletedTodo(id);
 
-            return Ok();
+            return Ok(response);
         }
 
         [HttpGet("not-completed-task-count")]
