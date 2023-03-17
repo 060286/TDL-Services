@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TDL.Domain.Entities;
 using TDL.Services.Dto.Color;
 using TDL.Services.Dto.MyDayPage;
+using TDL.Services.Dto.TodoDto;
 
 namespace TDL.Services.Services.v1.Interfaces
 {
@@ -35,5 +36,9 @@ namespace TDL.Services.Services.v1.Interfaces
         GetMyDayItemDetailResponseDto UpdateTodoDescription(Guid id, string description);
 
         IList<ColorDto> GetTagList();
+
+        ColorDto AddTagTodo(AddTagTodoRequestDto request);
+
+        IList<GetTodoCategoryResponseDto> GetTodoCategoryList(string userName);
     }
 }

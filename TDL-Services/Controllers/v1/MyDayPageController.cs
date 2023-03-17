@@ -26,7 +26,6 @@ namespace TDL.APIs.Controllers.v1
         [HttpPost("simple-todo")]
         public IActionResult CreateSimpleTodo([FromBody] CreateSimpleTodoRequestDto request)
         {
-            
             var response = _todoService.CreateSimpleTodo(request, UserName);
 
             return Ok(response);

@@ -72,7 +72,36 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(response);
         }
+
+        [HttpPut("add-tag-todo")]
+        public IActionResult AddTagTodo([FromBody] AddTagTodoRequestDto tag)
+        {
+            var response = _todoService.AddTagTodo(tag);
+            
+            return Ok(response);
+        }
+
+        [HttpGet("todo-categories")]
+        public IActionResult GetTodoCategories()
+        {
+            var response = _todoService.GetTodoCategoryList(UserName);
+
+            return Ok(response);
+        }
+
+        //[HttpGet("{categoryId}/todo-category")]
+        //public IActionResult GetTodoCategoryById(Guid categoryId)
+        //{
+        //    var response = categoryId
+
+        //    return Ok();
+        //}
     }
+
+    public class AddTagTodo
+    {
+        public string Tag { get; set; }
+    } 
 
     public class UpdateTitleOfTodoRequest
     {
