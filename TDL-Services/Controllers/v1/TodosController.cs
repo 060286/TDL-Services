@@ -89,13 +89,12 @@ namespace TDL.APIs.Controllers.v1
             return Ok(response);
         }
 
-        //[HttpGet("{categoryId}/todo-category")]
-        //public IActionResult GetTodoCategoryById(Guid categoryId)
-        //{
-        //    var response = categoryId
+        [HttpGet("{categoryId}/todo-by-category")]
+        public IActionResult GetTodoByCategory(Guid categoryId)
+        {
 
-        //    return Ok();
-        //}
+            return Ok();
+        }
     }
 
     public class AddTagTodo
