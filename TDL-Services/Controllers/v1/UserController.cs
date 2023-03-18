@@ -62,5 +62,11 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(response);
         }
+
+        [HttpGet("validate-token")]
+        public IActionResult ValidateToken()
+        {
+            return Ok();
+        }
     }
 }

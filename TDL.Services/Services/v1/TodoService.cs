@@ -54,14 +54,8 @@ namespace TDL.Services.Services.v1
             using var scope = _uow.Provide();
             string categoryDefault = "Personal";
             Guid id = Guid.NewGuid();
-            Guid categoryId = Guid.Empty;
-
-
-            //Guid categoryIdDefault = request.CategoryId == Guid.NewGuid()
-            //    ? _todoCategoryRepository.GetAll(true)
-            //        .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault))!
-            //        .Id
-            //    : request.CategoryId;
+            Guid? categoryId = request.CategoryId;
+            int priorityNumber = 1;
 
             if (!request.CategoryId.HasValue)
             {
@@ -70,8 +64,19 @@ namespace TDL.Services.Services.v1
                                            && tdc.CreatedBy.EqualsInvariant(userName))!
                     .Id;
             }
+
+            // Get max priority 
+            var largestTodo = _todoRepository.GetAll(true)
+                .Where(x => x.TodoDate == request.TodoDate)
+                .OrderByDescending(x => x.Priority)
+                .FirstOrDefault();
+
+            if (largestTodo != null)
+            {
+                priorityNumber = largestTodo.Priority + 1;
+            }
             
-            Todo response = BuildSimpleTodo(id, request.Title, categoryId);
+            Todo response = BuildSimpleTodo(id, request.Title, (Guid)categoryId, priorityNumber, request.TodoDate);
 
             _todoRepository.Add(response);
 
@@ -381,6 +386,56 @@ namespace TDL.Services.Services.v1
             return todoCategories;
         }
 
+        public GetMyDayItemDetailResponseDto DragAndDropTodo(DragDropTodoRequest request)
+        {
+            using var scope = _uow.Provide();
+
+            var dragTodo = _todoRepository.GetAll()
+                .FirstOrDefault(td => td.Id == request.DragId);
+
+            Guard.ThrowIfNull<NotFoundException>(dragTodo, nameof(Todo));
+
+            var dropTodo = _todoRepository.GetAll()
+                .Where(td => td.TodoDate.Date == request.DropDate.Date 
+                    && td.Priority >= request.Priority)
+                .ToList();
+
+            var dragTodoList = _todoRepository.GetAll()
+                .Where(td => td.TodoDate.Date == dragTodo.TodoDate && td.Priority < dragTodo.Priority)
+                .ToList();
+
+            if (!dropTodo.IsNullOrEmpty())
+            {
+                dragTodo.TodoDate = request.DropDate;
+                dragTodo.Priority = request.Priority;
+
+                foreach (var todo in dropTodo)
+                {
+                    todo.Priority += 1;
+                }
+
+                foreach (var todo in dragTodoList)
+                {
+                    todo.Priority -= 1;
+                }
+            }
+
+            _todoRepository.Update(dragTodo);
+            _todoRepository.UpdateRange(dropTodo);
+            _todoRepository.UpdateRange(dragTodoList);
+
+            scope.SaveChanges();
+            scope.Complete();
+
+            return new GetMyDayItemDetailResponseDto()
+            {
+                Id = dragTodo.Id,
+                Description = dragTodo.Description,
+                IsCompleted = dragTodo.IsCompleted,
+                Title = dragTodo.Title,
+            };
+        }
+
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
         {
             using var scope = _uow.Provide();
@@ -462,15 +517,17 @@ namespace TDL.Services.Services.v1
             return dateRemind;
         }
 
-        private Todo BuildSimpleTodo(Guid id, string title, Guid categoryId)
+        private Todo BuildSimpleTodo(Guid id, string title, Guid categoryId, int priority, DateTime todoDate)
         {
             return new Todo
             {
                 Id = id,
+                TodoDate = todoDate,
                 Title = title,
                 IsArchieved = false,
                 IsCompleted = false,
                 CategoryId = categoryId,
+                Priority = priority,
                 Description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsu"
             };
         }

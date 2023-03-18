@@ -95,8 +95,16 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok();
         }
-    }
 
+        [HttpPut("drag-drop-todo")]
+        public IActionResult DragDropTodo([FromBody] DragDropTodoRequest request)
+        {
+            var response = _todoService.DragAndDropTodo(request);
+
+            return Ok(response);
+        }
+    }
+    
     public class AddTagTodo
     {
         public string Tag { get; set; }

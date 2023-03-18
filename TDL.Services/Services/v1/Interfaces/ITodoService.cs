@@ -40,5 +40,7 @@ namespace TDL.Services.Services.v1.Interfaces
         ColorDto AddTagTodo(AddTagTodoRequestDto request);
 
         IList<GetTodoCategoryResponseDto> GetTodoCategoryList(string userName);
+
+        GetMyDayItemDetailResponseDto DragAndDropTodo(DragDropTodoRequest request);
     }
 }

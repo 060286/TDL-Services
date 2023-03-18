@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
+using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
 using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
@@ -65,7 +66,9 @@ namespace TDL.Services.Services.v1
                     IsCompleted = td.IsCompleted,
                     Title = td.Title,
                     HaveSubTask = td.SubTasks.Count > 0,
-                    Priority = _colorService.PriorityColor(td.Priority)
+                    //Priority = _colorService.PriorityColor(td.Priority)
+                    Priority = td.Priority,
+                    Tag = _colorService.PriorityColor(!td.Tag.IsNullOrEmpty() ? td.Tag : ColorConstant.Nothing)
                 }).ToList();
 
             return todayTask;

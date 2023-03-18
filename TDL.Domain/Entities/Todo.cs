@@ -17,7 +17,7 @@ namespace TDL.Domain.Entities
 
         public string Status { get; set; }
 
-        public string Priority { get; set; }
+        public int Priority { get; set; }
 
         //public IFormFile AttachmentFile { get; set; }
 
@@ -33,7 +33,11 @@ namespace TDL.Domain.Entities
 
         public Guid? WorkspaceId { get; set; }
 
+        // Tag 
         public string Tag { get; set; } = TagDefinition.Priority.ToString();
+
+        // Ngay add todo
+        public DateTime TodoDate { get; set; }
 
         public virtual TodoCategory TodoCategory { get; set; }
 

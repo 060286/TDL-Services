@@ -14,8 +14,10 @@ namespace TDL.Services.Dto.NextSevenDayPage
 
         public bool HaveSubTask { get; set; }
 
-        public ColorDto Priority { get; set; }
-
         public bool IsCompleted { get; set; }
+
+        public int Priority { get; set; }
+
+        public ColorDto Tag { get; set; }
     }
 }

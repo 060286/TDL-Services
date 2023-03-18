@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Extensions;
@@ -32,6 +33,11 @@ namespace TDL.Services.Services.v1
 
         private ColorDto BuildColorItem(string text)
         {
+            if (text.IsNullOrEmpty())
+            {
+                text = ColorConstant.Nothing.ToString();
+            }
+
             if (text.EqualsInvariant(ColorConstant.Important))
             {
                 return new ColorDto()

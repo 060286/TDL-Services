@@ -11,6 +11,8 @@ namespace TDL.Services.Dto.AllMyTask
 
         public string CategoryName { get; set; }
         public bool IsCompleted { get; set; }
+
+        public DateTime TodoDate { get; set; }
         
         public static AllTaskItemResponseDto FromTodo(Todo todo)
         {
@@ -19,6 +21,7 @@ namespace TDL.Services.Dto.AllMyTask
                 Id = todo.Id,
                 Title = todo.Title,
                 IsCompleted = todo.IsCompleted,
+                TodoDate = todo.TodoDate,
             };
         }
     }
