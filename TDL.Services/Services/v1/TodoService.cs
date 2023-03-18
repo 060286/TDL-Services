@@ -6,6 +6,7 @@ using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
+using TDL.Infrastructure.Enums;
 using TDL.Infrastructure.Exceptions;
 using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
@@ -13,6 +14,7 @@ using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using TDL.Infrastructure.Utilities;
 using TDL.Services.Dto.Color;
 using TDL.Services.Dto.MyDayPage;
+using TDL.Services.Dto.TodoDto;
 using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.Services.Services.v1
@@ -26,18 +28,21 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<TodoCategory> _todoCategoryRepository;
         private readonly IRepository<SubTask> _subtaskRepository;
         private IMapper _mapper;
+        private readonly IRepository<Tag> _tagRepository;
 
         public TodoService(IRepository<Todo> todoRepository,
             IUnitOfWorkProvider uow, 
             IRepository<TodoCategory> todoCategoryRepository,
             IRepository<SubTask> subtaskRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IRepository<Tag> tagRepository)
         {
             _todoRepository = todoRepository;
             _uow = uow;
             _todoCategoryRepository = todoCategoryRepository;
             _subtaskRepository = subtaskRepository;
             _mapper = mapper;
+            _tagRepository = tagRepository;
         }
 
         #endregion constructor
@@ -50,13 +55,13 @@ namespace TDL.Services.Services.v1
             string categoryDefault = "Personal";
             Guid id = Guid.NewGuid();
             Guid categoryId = Guid.Empty;
-            
-            
-            // Guid categoryIdDefault = request.CategoryId == Guid.NewGuid()
-            //     ? _todoCategoryRepository.GetAll(true)
-            //         .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault))!
-            //         .Id
-            //     : request.CategoryId;
+
+
+            //Guid categoryIdDefault = request.CategoryId == Guid.NewGuid()
+            //    ? _todoCategoryRepository.GetAll(true)
+            //        .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault))!
+            //        .Id
+            //    : request.CategoryId;
 
             if (!request.CategoryId.HasValue)
             {
@@ -288,7 +293,7 @@ namespace TDL.Services.Services.v1
                 new ColorDto()
                 {
                     Text = ColorConstant.Important,
-                    BackgroundColor = "#47ec06",
+                    BackgroundColor = "#FF0000",
                     Color = "#FFFFFF"
                 },
                 new ColorDto()
@@ -300,6 +305,80 @@ namespace TDL.Services.Services.v1
             };
 
             return tagList;
+        }
+
+        public ColorDto AddTagTodo(AddTagTodoRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .FirstOrDefault(td => td.Id == request.TodoId);
+
+            Guard.ThrowIfNull<NotFoundException>(todo, "Not Found Todo");
+
+            todo.Tag = request.Tag.ToString();
+                    
+            if (request.Tag == TagDefinition.Important)
+            {
+                return new ColorDto()
+                {
+                    Text = ColorConstant.Important,
+                    BackgroundColor = "#FF0000",
+                    Color = "#FFFFFF"
+                };
+            }
+            
+            if (request.Tag == TagDefinition.Nothing)
+            {
+                return new ColorDto()
+                {
+                    Text = ColorConstant.Nothing,
+                    BackgroundColor = "#Ecc506",
+                    Color = "#FFFFFF"
+                };
+            }
+            
+            if (request.Tag == TagDefinition.Priority)
+            {
+                return new ColorDto()
+                {
+                    Text = ColorConstant.Priority,
+                    BackgroundColor = "#F8D220",
+                    Color = "#FFFFFF"
+                };
+            }
+            
+            if (request.Tag == TagDefinition.TrackBack)
+            {
+                return new ColorDto()
+                {
+                    Text = ColorConstant.TrackBack,
+                    BackgroundColor = "#47ec06",
+                    Color = "#FFFFFF"
+                };
+            }
+            
+            return new ColorDto()
+            {
+                Text = ColorConstant.Priority,
+                BackgroundColor = "#F8D220",
+                Color = "#FFFFFF"
+            };
+        }
+
+        public IList<GetTodoCategoryResponseDto> GetTodoCategoryList(string userName)
+        {
+            using var scope = _uow.Provide();
+
+            var todoCategories = _todoCategoryRepository.GetAll(true)
+                .Where(tdc => tdc.CreatedBy.EqualsInvariant(userName))
+                .Select(tdc => new GetTodoCategoryResponseDto()
+                {
+                    Id = tdc.Id,
+                    Title = tdc.Title
+                }).ToList();
+
+            return todoCategories;
         }
 
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
@@ -314,7 +393,7 @@ namespace TDL.Services.Services.v1
                     Title = td.Title,
                     IsCompleted = td.IsCompleted,
                     Description = td.Description,
-                    RemindedAt = td.RemindedAt,
+                    RemindedAt = td.RemindedAt, 
                     SubTasks = _subtaskRepository.GetAll(true)
                         .Where(st => st.TodoId == td.Id).Select(st => new SubTaskResponse()
                         {
@@ -391,7 +470,8 @@ namespace TDL.Services.Services.v1
                 Title = title,
                 IsArchieved = false,
                 IsCompleted = false,
-                CategoryId = categoryId
+                CategoryId = categoryId,
+                Description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsu"
             };
         }
 

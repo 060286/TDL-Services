@@ -60,6 +60,7 @@ namespace TDL.Services.Services.v1
                 .Where(td => td.CreatedAt.Value.Date == datetime.Date && td.CreatedBy.EqualsInvariant(userName))
                 .Select(td => new GetTodoNextSevenDayItemResponseDto()
                 {
+                    Id = td.Id,
                     Category = td.TodoCategory.Title,
                     IsCompleted = td.IsCompleted,
                     Title = td.Title,

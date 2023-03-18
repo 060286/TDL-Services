@@ -22,6 +22,6 @@ namespace TDL.Services.Dto.MyDayPage
 
         public IList<string> SubTasks { get; set; }
 
-        public IList<TagDefination> Tags { get; set; }
+        public IList<TagDefinition> Tags { get; set; }
     }
 }
