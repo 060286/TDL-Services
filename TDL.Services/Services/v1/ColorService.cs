@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Extensions;
@@ -62,7 +61,7 @@ namespace TDL.Services.Services.v1
             {
                 return new ColorDto()
                 {
-                    Text = ColorConstant.Important,
+                    Text = ColorConstant.Priority,
                     BackgroundColor = "#F8D220",
                     Color = "#FFFFFF"
                 };

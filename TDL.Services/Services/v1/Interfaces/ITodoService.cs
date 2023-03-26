@@ -42,5 +42,7 @@ namespace TDL.Services.Services.v1.Interfaces
         IList<GetTodoCategoryResponseDto> GetTodoCategoryList(string userName);
 
         GetMyDayItemDetailResponseDto DragAndDropTodo(DragDropTodoRequest request);
+
+        void RemoveSubTaskById(Guid id);
     }
 }

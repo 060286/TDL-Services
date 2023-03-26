@@ -103,6 +103,14 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(response);
         }
+
+        [HttpDelete("{id}/remove-sub-task")]
+        public IActionResult RemoveSubTask(Guid id)
+        {
+            _todoService.RemoveSubTaskById(id);
+
+            return Ok();
+        }
     }
     
     public class AddTagTodo

@@ -35,8 +35,7 @@ namespace TDL.Domain.Entities
 
         // Tag 
         public string Tag { get; set; } = TagDefinition.Priority.ToString();
-
-        // Ngay add todo
+        
         public DateTime TodoDate { get; set; }
 
         public virtual TodoCategory TodoCategory { get; set; }

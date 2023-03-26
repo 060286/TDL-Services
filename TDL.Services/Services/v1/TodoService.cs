@@ -29,13 +29,14 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<SubTask> _subtaskRepository;
         private IMapper _mapper;
         private readonly IRepository<Tag> _tagRepository;
-
+        private readonly IColorService _colorService;
         public TodoService(IRepository<Todo> todoRepository,
             IUnitOfWorkProvider uow, 
             IRepository<TodoCategory> todoCategoryRepository,
             IRepository<SubTask> subtaskRepository,
             IMapper mapper,
-            IRepository<Tag> tagRepository)
+            IRepository<Tag> tagRepository,
+            IColorService colorService)
         {
             _todoRepository = todoRepository;
             _uow = uow;
@@ -43,6 +44,7 @@ namespace TDL.Services.Services.v1
             _subtaskRepository = subtaskRepository;
             _mapper = mapper;
             _tagRepository = tagRepository;
+            _colorService = colorService;
         }
 
         #endregion constructor
@@ -52,10 +54,12 @@ namespace TDL.Services.Services.v1
         public TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request, string userName)
         {
             using var scope = _uow.Provide();
+
             string categoryDefault = "Personal";
             Guid id = Guid.NewGuid();
             Guid? categoryId = request.CategoryId;
             int priorityNumber = 1;
+            request.TodoDate = request.TodoDate ?? DateTime.UtcNow;
 
             if (!request.CategoryId.HasValue)
             {
@@ -76,7 +80,7 @@ namespace TDL.Services.Services.v1
                 priorityNumber = largestTodo.Priority + 1;
             }
             
-            Todo response = BuildSimpleTodo(id, request.Title, (Guid)categoryId, priorityNumber, request.TodoDate);
+            Todo response = BuildSimpleTodo(id, request.Title, (Guid)categoryId, priorityNumber, (DateTime)request.TodoDate);
 
             _todoRepository.Add(response);
 
@@ -86,7 +90,7 @@ namespace TDL.Services.Services.v1
             {
                 Id = id,
                 Title = request.Title,
-                CreatedAt = DateTime.Now,
+                TodoDate = DateTime.Now,
                 IsCompleted = false,
                 IsPinned = false,
                 TodoCategory = string.Empty
@@ -111,7 +115,7 @@ namespace TDL.Services.Services.v1
 
             var response = _todoRepository.GetAll(true)
                 .Include(x => x.TodoCategory)
-                .Where(td => td.CreatedAt > sevenDaysBefore && td.CreatedAt.Value != now)
+                .Where(td => td.TodoDate > sevenDaysBefore && td.TodoDate != now)
                 .Where(td => string.IsNullOrEmpty(keyword) || td.Title.ContainInvariant(keyword))
                 .Take(20)
                 .OrderByDescending(td => td.CreatedAt)
@@ -120,12 +124,26 @@ namespace TDL.Services.Services.v1
                     Id = td.Id,
                     CategoryName = td.TodoCategory.Title,
                     Title = td.Title,
-                    CreatedAt = td.CreatedAt
+                    TodoDate = td.TodoDate,
+                    Description = td.Description, 
+                    IsCompleted = td.IsCompleted,
+                    Priority = td.Priority,
+                    RemindedAt = td.RemindedAt,
+                    Tag = td.Tag,
+                    FileName = td.FileName,
+                    Status = td.Status,
+                    IsArchieved = td.IsArchieved,
+                    SubTasks = td.SubTasks.Select(st => new SubTaskResponse()
+                    {
+                        IsCompleted = st.IsCompleted,
+                        Id = st.Id,
+                        Name = st.Title
+                    }).ToList(),
                 }).ToList();
 
             foreach(var item in response)
             {
-                if (item.CreatedAt != null) item.DateRemind = BuildDateRemind((DateTime)item.CreatedAt);
+                item.DateRemind = BuildDateRemind(item.TodoDate);
             }
 
             return response;
@@ -197,7 +215,7 @@ namespace TDL.Services.Services.v1
             using var scope = _uow.Provide();
 
             var notCompletedCount = _todoRepository.GetAll(true)
-                .Where(x => x.IsCompleted && x.CreatedAt.Equals(dateTime))
+                .Where(x => x.IsCompleted && x.TodoDate.Equals(dateTime))
                 .Count(x => x.CreatedBy.EqualsInvariant(userName));
 
             return notCompletedCount;
@@ -322,7 +340,11 @@ namespace TDL.Services.Services.v1
             Guard.ThrowIfNull<NotFoundException>(todo, "Not Found Todo");
 
             todo.Tag = request.Tag.ToString();
-                    
+
+            _todoRepository.Update(todo);
+
+            scope.Complete();
+
             if (request.Tag == TagDefinition.Important)
             {
                 return new ColorDto()
@@ -436,6 +458,20 @@ namespace TDL.Services.Services.v1
             };
         }
 
+        public void RemoveSubTaskById(Guid id)
+        {
+            using var scope = _uow.Provide();
+
+            var subTask = _subtaskRepository.GetAll(true)
+                .FirstOrDefault(sb => sb.Id == id);
+
+            Guard.ThrowIfNull<NotFoundException>(subTask, "Not found Sub Task");
+
+            _subtaskRepository.Delete(subTask);
+
+            scope.Complete();
+        }
+
         public GetMyDayItemDetailResponseDto GetTodoById(Guid todoId)
         {
             using var scope = _uow.Provide();
@@ -465,19 +501,33 @@ namespace TDL.Services.Services.v1
         {
             using var scope = _uow.Provide();
 
+            var (date, month, year) = (dateTime.Date, dateTime.Month, dateTime.Year);
+
             var response = _todoRepository.GetAll(true)
                 .Include(td => td.TodoCategory)
-                .Where(td => td.CreatedAt.Value.Date == dateTime.Date &&
-                        td.CreatedAt.Value.Month == dateTime.Month &&
-                        td.CreatedAt.Value.Year == dateTime.Year)
+                .Where(td => td.TodoDate.Date == dateTime.Date
+                    && td.TodoDate.Month == dateTime.Month
+                    && td.TodoDate.Year == dateTime.Year)
                 .Select(td => new TodoOfDateResponseDto()
                 {
                     Id = td.Id,
+                    CategoryName = td.TodoCategory.Title,
                     Title = td.Title,
-                    TodoCategory = td.TodoCategory.Title,
-                    CreatedAt = (DateTime)td.CreatedAt,
-                    IsCompleted= td.IsCompleted,
-                    IsPinned = false
+                    TodoDate = td.TodoDate,
+                    Description = td.Description,
+                    IsCompleted = td.IsCompleted,
+                    Priority = td.Priority,
+                    RemindedAt = td.RemindedAt,
+                    Tag = _colorService.PriorityColor(td.Tag),
+                    FileName = td.FileName,
+                    Status = td.Status,
+                    IsArchieved = td.IsArchieved,
+                    SubTasks = td.SubTasks.Select(st => new SubTaskResponse()
+                    {
+                        IsCompleted = st.IsCompleted,
+                        Id = st.Id,
+                        Name = st.Title
+                    }).ToList(),
                 })
                 .ToList();
 

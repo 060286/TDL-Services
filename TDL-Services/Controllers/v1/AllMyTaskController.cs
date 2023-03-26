@@ -21,7 +21,6 @@ namespace TDL.APIs.Controllers.v1
         {
             _allMyTaskPageService = allMyTaskPageService;
         }
-
         
         /// <summary>
         /// Get All Task In All Task Page

@@ -8,6 +8,6 @@ namespace TDL.Services.Dto.MyDayPage
 
         public Guid? CategoryId { get; set; }
 
-        public DateTime TodoDate { get; set; }
+        public DateTime? TodoDate { get; set; }
     }
 }

@@ -29,24 +29,24 @@ namespace TDL.Services.Services.v1
         {
             using var scope = _uow.Provide();
 
-            DateTime nextday = datetime.AddDays(1);
+            DateTime nextDay = datetime.AddDays(1);
             DateTime firstUpcomingDay = datetime.AddDays(2);
             DateTime lastUpcomingDay = datetime.AddDays(8);
 
 
             var todayTask = _todoRepository.GetAll(true)
-                .Where(td => td.CreatedAt.Value.Date == datetime.Date)
+                .Where(td => td.TodoDate.Date == datetime.Date)
                 .Select(x => AllTaskItemResponseDto.FromTodo(x))
                 .ToList();
 
             var tomorrowTask = _todoRepository.GetAll(true)
-                .Where(td => td.CreatedAt.Value.Date == nextday.Date)
+                .Where(td => td.TodoDate.Date == nextDay.Date)
                 .Select(x => AllTaskItemResponseDto.FromTodo(x))
                 .ToList();
 
             var upCommingDayTask = _todoRepository.GetAll(true)
-                .Where(td => td.CreatedAt.Value.Date > firstUpcomingDay.Date && 
-                             td.CreatedAt.Value.Date < lastUpcomingDay.Date)
+                .Where(td => td.TodoDate.Date > firstUpcomingDay.Date && 
+                             td.TodoDate.Date < lastUpcomingDay.Date)
                 .Select(x => AllTaskItemResponseDto.FromTodo(x))
                 .ToList();
 

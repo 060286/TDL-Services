@@ -58,7 +58,7 @@ namespace TDL.Services.Services.v1
             var todayTask = _todoRepository.GetAll(true)
                 .Include(td => td.Tags)
                 .Include(td => td.TodoCategory)
-                .Where(td => td.CreatedAt.Value.Date == datetime.Date && td.CreatedBy.EqualsInvariant(userName))
+                .Where(td => td.TodoDate.Date == datetime.Date && td.CreatedBy.EqualsInvariant(userName))
                 .Select(td => new GetTodoNextSevenDayItemResponseDto()
                 {
                     Id = td.Id,
