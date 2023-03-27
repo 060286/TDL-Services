@@ -16,6 +16,8 @@ namespace TDL.Services.Dto.MyDayPage
 
         public DateTime? RemindedAt { get; set; }
 
+        public DateTime? TodoDate { get; set; }
+
         public IList<SubTaskResponse> SubTasks { get; set; }
 
         public ColorDto Tag { get; set; }
