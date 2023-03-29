@@ -257,6 +257,7 @@ namespace TDL.Services.Services.v1
                 Description = todo.Description,
                 IsCompleted = todo.IsCompleted,
                 RemindedAt = todo.RemindedAt,
+                TodoDate = todo.TodoDate,
                 SubTasks = todo.SubTasks.Select(st => new SubTaskResponse()
                 {
                     Id = st.Id,
@@ -288,6 +289,7 @@ namespace TDL.Services.Services.v1
                 Description = description,
                 IsCompleted = todo.IsCompleted,
                 RemindedAt = todo.RemindedAt,
+                TodoDate = todo.TodoDate,
                 SubTasks = todo.SubTasks.Select(st => new SubTaskResponse()
                 {
                     Id = st.Id,

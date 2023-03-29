@@ -59,7 +59,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpPut("{id}/update-todo-description")]
         public IActionResult UpdateDescriptionOfTodo(Guid id, [FromBody] UpdateDescriptionOfTodoRequest request)
         {
-            var response = _todoService.UpdateTodoTitle(id, request.Description);
+            var response = _todoService.UpdateTodoDescription(id, request.Description);
 
             return Ok(response);
         }
