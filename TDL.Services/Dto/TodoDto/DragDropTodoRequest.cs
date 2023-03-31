@@ -11,5 +11,7 @@ namespace TDL.Services.Dto.TodoDto
         public DateTime DropDate { get; set; }
 
         public int Priority { get; set; }
+
+        public bool IsSameColumn { get; set; }
     }
 }

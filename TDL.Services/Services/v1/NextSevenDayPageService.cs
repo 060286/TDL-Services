@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
@@ -59,6 +60,7 @@ namespace TDL.Services.Services.v1
                 .Include(td => td.Tags)
                 .Include(td => td.TodoCategory)
                 .Where(td => td.TodoDate.Date == datetime.Date && td.CreatedBy.EqualsInvariant(userName))
+                .OrderBy(x => x.Priority)
                 .Select(td => new GetTodoNextSevenDayItemResponseDto()
                 {
                     Id = td.Id,

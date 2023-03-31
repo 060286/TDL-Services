@@ -419,30 +419,68 @@ namespace TDL.Services.Services.v1
 
             Guard.ThrowIfNull<NotFoundException>(dragTodo, nameof(Todo));
 
+            if(request.IsSameColumn)
+            {
+                var sortTodos = new List<Todo>();
+                //Kéo từ trên xuống
+                if (dragTodo.Priority < request.Priority)
+                {
+
+                    sortTodos = _todoRepository.GetAll()
+                        .Where(td => td.TodoDate.Date == request.DropDate.Date && td.Priority <= request.Priority && td.Priority > dragTodo.Priority && td.Id != request.DragId)
+                        .ToList();
+
+                    foreach (var todo in sortTodos)
+                    {
+                        todo.Priority -= 1;
+                    }
+                    dragTodo.Priority = request.Priority;
+                }
+                else
+                {
+                    sortTodos = _todoRepository.GetAll()
+                        .Where(td => td.TodoDate.Date == request.DropDate.Date && td.Priority >= request.Priority && td.Priority < dragTodo.Priority && td.Id != request.DragId)
+                        .ToList();
+                    foreach (var todo in sortTodos)
+                    {
+                        todo.Priority += 1;
+                    }
+                    dragTodo.Priority = request.Priority;
+                }
+                _todoRepository.Update(dragTodo);
+                _todoRepository.UpdateRange(sortTodos);
+                scope.Complete();
+                return new GetMyDayItemDetailResponseDto()
+                {
+                    Id = dragTodo.Id,
+                    Description = dragTodo.Description,
+                    IsCompleted = dragTodo.IsCompleted,
+                    Title = dragTodo.Title,
+                };
+            }
+
+            var dragTodoList = _todoRepository.GetAll()
+                .Where(td => td.TodoDate.Date == dragTodo.TodoDate.Date && td.Priority > dragTodo.Priority)
+                .ToList();
+
             var dropTodo = _todoRepository.GetAll()
                 .Where(td => td.TodoDate.Date == request.DropDate.Date 
                     && td.Priority >= request.Priority)
                 .ToList();
 
-            var dragTodoList = _todoRepository.GetAll()
-                .Where(td => td.TodoDate.Date == dragTodo.TodoDate && td.Priority < dragTodo.Priority)
-                .ToList();
-
-            if (!dropTodo.IsNullOrEmpty())
+            foreach (var todo in dragTodoList)
             {
-                dragTodo.TodoDate = request.DropDate;
-                dragTodo.Priority = request.Priority;
-
-                foreach (var todo in dropTodo)
-                {
-                    todo.Priority += 1;
-                }
-
-                foreach (var todo in dragTodoList)
-                {
-                    todo.Priority -= 1;
-                }
+                todo.Priority -= 1;
             }
+
+            foreach (var todo in dropTodo)
+            {
+                todo.Priority += 1;
+            }
+
+           
+            dragTodo.TodoDate = request.DropDate;
+            dragTodo.Priority = request.Priority;
 
             _todoRepository.Update(dragTodo);
             _todoRepository.UpdateRange(dropTodo);
@@ -564,7 +602,7 @@ namespace TDL.Services.Services.v1
         {
             DateTime now = DateTime.Now;
             double numberOfDays = Math.Ceiling((now - dateTime).TotalDays);
-            string dateRemind = $"From {numberOfDays} days ago";
+            string dateRemind = $"From {Math.Abs(numberOfDays)} days ago";
 
             return dateRemind;
         }
