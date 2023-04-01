@@ -8,6 +8,7 @@ using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
 using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
+using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Dto.NextSevenDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -64,13 +65,23 @@ namespace TDL.Services.Services.v1
                 .Select(td => new GetTodoNextSevenDayItemResponseDto()
                 {
                     Id = td.Id,
-                    Category = td.TodoCategory.Title,
-                    IsCompleted = td.IsCompleted,
+                    CategoryName = td.TodoCategory.Title,
                     Title = td.Title,
-                    HaveSubTask = td.SubTasks.Count > 0,
-                    //Priority = _colorService.PriorityColor(td.Priority)
+                    TodoDate = td.TodoDate,
+                    Description = td.Description,
+                    IsCompleted = td.IsCompleted,
                     Priority = td.Priority,
-                    Tag = _colorService.PriorityColor(!td.Tag.IsNullOrEmpty() ? td.Tag : ColorConstant.Nothing)
+                    RemindedAt = td.RemindedAt,
+                    Tag = _colorService.PriorityColor(td.Tag),
+                    FileName = td.FileName,
+                    Status = td.Status,
+                    IsArchieved = td.IsArchieved,
+                    SubTasks = td.SubTasks.Select(st => new SubTaskResponse()
+                    {
+                        IsCompleted = st.IsCompleted,
+                        Id = st.Id,
+                        Name = st.Title
+                    }).ToList(),
                 }).ToList();
 
             return todayTask;

@@ -44,5 +44,7 @@ namespace TDL.Services.Services.v1.Interfaces
         GetMyDayItemDetailResponseDto DragAndDropTodo(DragDropTodoRequest request);
 
         void RemoveSubTaskById(Guid id);
+
+        void UpdateRemindAt(DateTime? remindAt, Guid todoId);
     }
 }

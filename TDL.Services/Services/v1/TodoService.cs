@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
@@ -508,6 +507,21 @@ namespace TDL.Services.Services.v1
             Guard.ThrowIfNull<NotFoundException>(subTask, "Not found Sub Task");
 
             _subtaskRepository.Delete(subTask);
+
+            scope.Complete();
+        }
+
+        public void UpdateRemindAt(DateTime? remindAt, Guid todoId)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll().FirstOrDefault(x => x.Id == todoId);
+
+            Guard.ThrowIfNull<NotFoundException>(todo, "Not found Todo");
+
+            todo.RemindedAt = remindAt;
+
+            _todoRepository.Update(todo);
 
             scope.Complete();
         }
