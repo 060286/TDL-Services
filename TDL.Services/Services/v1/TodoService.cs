@@ -83,16 +83,31 @@ namespace TDL.Services.Services.v1
 
             _todoRepository.Add(response);
 
+            scope.SaveChanges();
+
             scope.Complete();
 
             return new TodoOfDateResponseDto
             {
-                Id = id,
-                Title = request.Title,
-                TodoDate = DateTime.Now,
-                IsCompleted = false,
-                IsPinned = false,
-                TodoCategory = string.Empty
+                Id = response.Id,
+                CategoryName = response.TodoCategory.Title,
+                Title = response.Title,
+                TodoDate = response.TodoDate,
+                Description = response.Description,
+                IsCompleted = response.IsCompleted,
+                Priority = response.Priority,
+                RemindedAt = response.RemindedAt,
+                Tag = _colorService.PriorityColor(response.Tag),
+                FileName = response.FileName,
+                Status = response.Status,
+                IsArchieved = response.IsArchieved,
+                TodoCategory = response.TodoCategory.Title,
+                SubTasks = response.SubTasks?.Select(st => new SubTaskResponse()
+                {
+                    IsCompleted = st.IsCompleted,
+                    Id = st.Id,
+                    Name = st.Title
+                }).ToList(),
             };
         }
 
@@ -576,6 +591,7 @@ namespace TDL.Services.Services.v1
                     FileName = td.FileName,
                     Status = td.Status,
                     IsArchieved = td.IsArchieved,
+                    TodoCategory = td.TodoCategory.Title,
                     SubTasks = td.SubTasks.Select(st => new SubTaskResponse()
                     {
                         IsCompleted = st.IsCompleted,
