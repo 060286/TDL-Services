@@ -23,8 +23,8 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<SubTask> _subtaskRepository;
 
         public CategoryService(IUnitOfWorkProvider uowProvider,
-            IRepository<TodoCategory> todoCategoryRepository, 
-            IRepository<Todo> todoRepository, 
+            IRepository<TodoCategory> todoCategoryRepository,
+            IRepository<Todo> todoRepository,
             IRepository<SubTask> subtaskRepository)
         {
             _uowProvider = uowProvider;
@@ -32,7 +32,7 @@ namespace TDL.Services.Services.v1
             _todoRepository = todoRepository;
             _subtaskRepository = subtaskRepository;
         }
-        
+
         public IList<MyListCategoryItem> GetCategoryByUserName(string userName)
         {
             using var scope = _uowProvider.Provide();
@@ -57,22 +57,23 @@ namespace TDL.Services.Services.v1
 
             bool isDuplicate = _todoCategoryRepository.GetAll(true)
                 .Any(tdc => tdc.Title.EqualsInvariant(request.Title));
-            
+            // Chỗ này cần kiểm tra thêm createdBy 
+
             Guard.ThrowByCondition<BusinessLogicException>(isDuplicate, duplicateError);
-            
+
             TodoCategory todoCategory = new TodoCategory()
             {
                 Id = request.Id,
                 Title = request.Title,
                 Description = request.Description
             };
-            
+
             _todoCategoryRepository.Add(todoCategory);
-            
+
             scope.Complete();
         }
 
-        public IList<MyListTodoItemResponse> GetMyListTodosItem(MyListTodoItemRequestDto request, string userName)
+        public MyListTodoItemResponse GetMyListTodosItem(MyListTodoItemRequestDto request, string userName)
         {
             using var scope = _uowProvider.Provide();
             bool isSortByNull = request.SortBy == null;
@@ -83,7 +84,15 @@ namespace TDL.Services.Services.v1
             var result = _todoRepository.GetAll(true)
                 .Include(x => x.SubTasks)
                 .Where(x => x.CategoryId.Equals(request.CategoryId));
-            
+
+            var category = _todoCategoryRepository.GetAll(true)
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    Name = x.Title
+                })
+                .FirstOrDefault(x => x.Id == request.CategoryId);
+
             if (request.SortType == SortType.Asc)
             {
                 result = SortBy.Title == request.SortBy
@@ -97,8 +106,8 @@ namespace TDL.Services.Services.v1
                     ? result.OrderByDescending(x => x.Title)
                     : result.OrderByDescending(x => x.UpdatedAt);
             }
-            
-            return result.Select(x => new MyListTodoItemResponse
+
+            var todos = result.Select(x => new MyListTodoItem
             {
                 Id = x.Id,
                 IsCompleted = x.IsCompleted,
@@ -106,6 +115,12 @@ namespace TDL.Services.Services.v1
                 TotalSubtask = x.SubTasks.Count(),
                 CompletedSubtask = x.SubTasks.Count(st => st.CreatedBy.EqualsInvariant(userName))
             }).ToList();
+
+            return new MyListTodoItemResponse
+            {
+                CategoryName = category.Name,
+                Todos = todos
+            };
         }
 
         public CreateSubTaskResponseDto CreateSubTask(CreateSubtaskRequestDto request)
@@ -118,9 +133,9 @@ namespace TDL.Services.Services.v1
                 Title = request.Name,
                 TodoId = request.TodoId,
             };
-            
+
             _subtaskRepository.Add(subTask);
-            
+
             scope.Complete();
 
             return new CreateSubTaskResponseDto()

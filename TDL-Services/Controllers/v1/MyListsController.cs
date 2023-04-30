@@ -16,7 +16,7 @@ namespace TDL.APIs.Controllers.v1
     public class MyListsController : BaseController
     {
         private readonly ICategoryService _categoryService;
-        
+
         public MyListsController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
@@ -43,10 +43,10 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult GetDefaultCategoryId()
         {
             var response = _categoryService.GetDefaultCategoryId(UserName);
-            
+
             return Ok(response);
         }
-    
+
         /// <summary>
         /// Get Todos by category name
         /// </summary>
@@ -56,7 +56,7 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult GetTaskByCategory([FromQuery] MyListTodoItemRequestDto requestDto)
         {
             var result = _categoryService.GetMyListTodosItem(requestDto, UserName);
-            
+
             return Ok(result);
         }
 
@@ -64,7 +64,7 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult GetAllTaskByUserId()
         {
             var result = _categoryService.GetCategoryByUserName(UserName);
-            
+
             return Ok(result);
         }
 
@@ -72,7 +72,7 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult CreateSubTask([FromBody] CreateSubtaskRequestDto requestDto)
         {
             var result = _categoryService.CreateSubTask(request: requestDto);
-            
+
             return Ok(result);
         }
     }
