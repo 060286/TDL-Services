@@ -30,7 +30,7 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<Tag> _tagRepository;
         private readonly IColorService _colorService;
         public TodoService(IRepository<Todo> todoRepository,
-            IUnitOfWorkProvider uow, 
+            IUnitOfWorkProvider uow,
             IRepository<TodoCategory> todoCategoryRepository,
             IRepository<SubTask> subtaskRepository,
             IMapper mapper,
@@ -70,7 +70,9 @@ namespace TDL.Services.Services.v1
 
             // Get max priority 
             var largestTodo = _todoRepository.GetAll(true)
-                .Where(x => x.TodoDate == request.TodoDate)
+                .Where(x => x.TodoDate.Date == request.TodoDate.Value.Date
+                    && x.CreatedBy.EqualsInvariant(userName)
+                    && x.CategoryId == categoryId)
                 .OrderByDescending(x => x.Priority)
                 .FirstOrDefault();
 
@@ -78,22 +80,19 @@ namespace TDL.Services.Services.v1
             {
                 priorityNumber = largestTodo.Priority + 1;
             }
-            
+
             Todo response = BuildSimpleTodo(id, request.Title, (Guid)categoryId, priorityNumber, (DateTime)request.TodoDate);
 
             _todoRepository.Add(response);
-
             scope.SaveChanges();
-
             scope.Complete();
 
             return new TodoOfDateResponseDto
             {
                 Id = response.Id,
-                CategoryName = response.TodoCategory.Title,
-                Title = response.Title,
+                Title = response?.Title,
                 TodoDate = response.TodoDate,
-                Description = response.Description,
+                Description = response?.Description,
                 IsCompleted = response.IsCompleted,
                 Priority = response.Priority,
                 RemindedAt = response.RemindedAt,
@@ -101,13 +100,14 @@ namespace TDL.Services.Services.v1
                 FileName = response.FileName,
                 Status = response.Status,
                 IsArchieved = response.IsArchieved,
-                TodoCategory = response.TodoCategory.Title,
                 SubTasks = response.SubTasks?.Select(st => new SubTaskResponse()
                 {
                     IsCompleted = st.IsCompleted,
                     Id = st.Id,
                     Name = st.Title
                 }).ToList(),
+                CategoryName = _todoCategoryRepository.GetAll(true)
+                    .FirstOrDefault(x => x.Id == categoryId && x.CreatedBy.EqualsInvariant(userName)).Title, // TOdoCategory.Title is null here
             };
         }
 
@@ -139,7 +139,7 @@ namespace TDL.Services.Services.v1
                     CategoryName = td.TodoCategory.Title,
                     Title = td.Title,
                     TodoDate = td.TodoDate,
-                    Description = td.Description, 
+                    Description = td.Description,
                     IsCompleted = td.IsCompleted,
                     Priority = td.Priority,
                     RemindedAt = td.RemindedAt,
@@ -155,7 +155,7 @@ namespace TDL.Services.Services.v1
                     }).ToList(),
                 }).ToList();
 
-            foreach(var item in response)
+            foreach (var item in response)
             {
                 item.DateRemind = BuildDateRemind(item.TodoDate);
             }
@@ -182,7 +182,7 @@ namespace TDL.Services.Services.v1
             var newCategory = _todoCategoryRepository.GetAll(true)
                 .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(request.CategoryName) &&
                                        tdc.CreatedBy.EqualsInvariant(userName));
-                
+
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
             Guard.ThrowIfNull<NotFoundException>(oldCategory, nameof(TodoCategory));
             Guard.ThrowIfNull<NotFoundException>(newCategory, nameof(TodoCategory));
@@ -199,11 +199,11 @@ namespace TDL.Services.Services.v1
             var todo = _todoRepository.GetAll()
                 .IgnoreQueryFilters()
                 .FirstOrDefault(tdc => tdc.Id.Equals(id));
-            
+
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
-            
+
             _todoRepository.Delete(todo);
-            
+
             scope.Complete();
         }
 
@@ -213,7 +213,7 @@ namespace TDL.Services.Services.v1
 
             var todo = _todoRepository.GetAll()
                 .FirstOrDefault(td => td.Id == id);
-            
+
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
 
             todo.IsCompleted = !todo.IsCompleted;
@@ -258,7 +258,7 @@ namespace TDL.Services.Services.v1
                 .FirstOrDefault(td => td.Id == id);
 
             Guard.ThrowIfNull<NotFoundException>(todo, "Not Found Todo");
-            
+
             todo.Title = title;
 
             scope.SaveChanges();
@@ -370,7 +370,7 @@ namespace TDL.Services.Services.v1
                     Color = "#FFFFFF"
                 };
             }
-            
+
             if (request.Tag == TagDefinition.Nothing)
             {
                 return new ColorDto()
@@ -380,7 +380,7 @@ namespace TDL.Services.Services.v1
                     Color = "#FFFFFF"
                 };
             }
-            
+
             if (request.Tag == TagDefinition.Priority)
             {
                 return new ColorDto()
@@ -390,7 +390,7 @@ namespace TDL.Services.Services.v1
                     Color = "#FFFFFF"
                 };
             }
-            
+
             if (request.Tag == TagDefinition.TrackBack)
             {
                 return new ColorDto()
@@ -400,7 +400,7 @@ namespace TDL.Services.Services.v1
                     Color = "#FFFFFF"
                 };
             }
-            
+
             return new ColorDto()
             {
                 Text = ColorConstant.Priority,
@@ -433,7 +433,7 @@ namespace TDL.Services.Services.v1
 
             Guard.ThrowIfNull<NotFoundException>(dragTodo, nameof(Todo));
 
-            if(request.IsSameColumn)
+            if (request.IsSameColumn)
             {
                 var sortTodos = new List<Todo>();
                 //Kéo từ trên xuống
@@ -478,7 +478,7 @@ namespace TDL.Services.Services.v1
                 .ToList();
 
             var dropTodo = _todoRepository.GetAll()
-                .Where(td => td.TodoDate.Date == request.DropDate.Date 
+                .Where(td => td.TodoDate.Date == request.DropDate.Date
                     && td.Priority >= request.Priority)
                 .ToList();
 
@@ -492,7 +492,7 @@ namespace TDL.Services.Services.v1
                 todo.Priority += 1;
             }
 
-           
+
             dragTodo.TodoDate = request.DropDate;
             dragTodo.Priority = request.Priority;
 
@@ -553,7 +553,7 @@ namespace TDL.Services.Services.v1
                     Title = td.Title,
                     IsCompleted = td.IsCompleted,
                     Description = td.Description,
-                    RemindedAt = td.RemindedAt, 
+                    RemindedAt = td.RemindedAt,
                     SubTasks = _subtaskRepository.GetAll(true)
                         .Where(st => st.TodoId == td.Id).Select(st => new SubTaskResponse()
                         {
@@ -606,7 +606,7 @@ namespace TDL.Services.Services.v1
 
         public void UpdateTodo(UpdateTodoRequestDto request)
         {
-            using var scope = _uow.Provide(); 
+            using var scope = _uow.Provide();
 
             var todo = _todoRepository.Get(request.Id);
 
@@ -618,7 +618,7 @@ namespace TDL.Services.Services.v1
             todo.RemindedAt = request.RemindedAt;
             todo.IsArchieved = request.IsArchieved;
             todo.IsCompleted = request.IsCompleted;
-            
+
             _todoRepository.Update(todo);
 
             scope.Complete();
