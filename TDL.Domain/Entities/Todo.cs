@@ -35,7 +35,7 @@ namespace TDL.Domain.Entities
 
         // Tag 
         public string Tag { get; set; } = TagDefinition.Priority.ToString();
-        
+
         public DateTime TodoDate { get; set; }
 
         public virtual TodoCategory TodoCategory { get; set; }
@@ -43,7 +43,7 @@ namespace TDL.Domain.Entities
         public virtual IList<SubTask> SubTasks { get; set; }
 
         public virtual IList<Tag> Tags { get; set; }
-        
+
         public virtual Workspace Workspace { get; set; }
     }
 }

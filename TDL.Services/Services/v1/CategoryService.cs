@@ -11,6 +11,7 @@ using TDL.Infrastructure.Persistence.Repositories.Repositories;
 using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using TDL.Infrastructure.Utilities;
 using TDL.Services.Dto.Category;
+using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.Services.Services.v1
@@ -21,16 +22,19 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<TodoCategory> _todoCategoryRepository;
         private readonly IRepository<Todo> _todoRepository;
         private readonly IRepository<SubTask> _subtaskRepository;
+        private readonly IColorService _colorService;
 
         public CategoryService(IUnitOfWorkProvider uowProvider,
             IRepository<TodoCategory> todoCategoryRepository,
             IRepository<Todo> todoRepository,
-            IRepository<SubTask> subtaskRepository)
+            IRepository<SubTask> subtaskRepository,
+            IColorService colorService)
         {
             _uowProvider = uowProvider;
             _todoCategoryRepository = todoCategoryRepository;
             _todoRepository = todoRepository;
             _subtaskRepository = subtaskRepository;
+            _colorService = colorService;
         }
 
         public IList<MyListCategoryItem> GetCategoryByUserName(string userName)
@@ -82,6 +86,7 @@ namespace TDL.Services.Services.v1
             request.SortType = isSortTypeNull ? request.SortType = SortType.Asc : request.SortType;
 
             var result = _todoRepository.GetAll(true)
+                .Include(x => x.TodoCategory)
                 .Include(x => x.SubTasks)
                 .Where(x => x.CategoryId.Equals(request.CategoryId));
 
@@ -107,14 +112,32 @@ namespace TDL.Services.Services.v1
                     : result.OrderByDescending(x => x.UpdatedAt);
             }
 
-            var todos = result.Select(x => new MyListTodoItem
+            var todos = result
+            .OrderByDescending(x => x.Priority)
+            .Select(td => new MyListTodoItem
             {
-                Id = x.Id,
-                IsCompleted = x.IsCompleted,
-                Title = x.Title,
-                TotalSubtask = x.SubTasks.Count(),
-                CompletedSubtask = x.SubTasks.Count(st => st.CreatedBy.EqualsInvariant(userName))
-            }).ToList();
+                Id = td.Id,
+                CategoryName = td.TodoCategory.Title,
+                Title = td.Title,
+                TodoDate = td.TodoDate,
+                Description = td.Description,
+                IsCompleted = td.IsCompleted,
+                Priority = td.Priority,
+                RemindedAt = td.RemindedAt,
+                Tag = _colorService.PriorityColor(td.Tag),
+                FileName = td.FileName,
+                Status = td.Status,
+                IsArchieved = td.IsArchieved,
+                SubTasks = td.SubTasks.Select(st => new SubTaskResponse()
+                {
+                    IsCompleted = st.IsCompleted,
+                    Id = st.Id,
+                    Name = st.Title
+                }).ToList(),
+                TotalSubtask = td.SubTasks.Count(),
+                CompletedSubtask = td.SubTasks.Count(st => st.CreatedBy.EqualsInvariant(userName))
+            })
+            .ToList();
 
             return new MyListTodoItemResponse
             {

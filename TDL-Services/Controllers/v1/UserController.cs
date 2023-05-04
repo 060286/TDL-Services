@@ -32,10 +32,10 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult AddDummyTag([FromBody] TagDummyRequestDto tag)
         {
             _userService.CreateDummyTag(tag);
-            
+
             return Ok();
         }
-        
+
 
         [AllowAnonymous]
         [HttpGet("search-user")]
