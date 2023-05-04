@@ -100,14 +100,15 @@ namespace TDL.Services.Services.v1
                 FileName = response.FileName,
                 Status = response.Status,
                 IsArchieved = response.IsArchieved,
-                SubTasks = response.SubTasks?.Select(st => new SubTaskResponse()
-                {
-                    IsCompleted = st.IsCompleted,
-                    Id = st.Id,
-                    Name = st.Title
-                }).ToList(),
+                // SubTasks = response.SubTasks?.Select(st => new SubTaskResponse()
+                // {
+                //     IsCompleted = st.IsCompleted,
+                //     Id = st.Id,
+                //     Name = st.Title
+                // }).ToList(),
+                SubTasks = new List<SubTaskResponse>(),
                 CategoryName = _todoCategoryRepository.GetAll(true)
-                    .FirstOrDefault(x => x.Id == categoryId && x.CreatedBy.EqualsInvariant(userName)).Title, // TOdoCategory.Title is null here
+                    .FirstOrDefault(x => x.Id == categoryId).Title, // TodoCategory.Title is null here
             };
         }
 
@@ -577,6 +578,7 @@ namespace TDL.Services.Services.v1
                 .Where(td => td.TodoDate.Date == dateTime.Date
                     && td.TodoDate.Month == dateTime.Month
                     && td.TodoDate.Year == dateTime.Year)
+                .OrderBy(td => td.Priority)
                 .Select(td => new TodoOfDateResponseDto()
                 {
                     Id = td.Id,

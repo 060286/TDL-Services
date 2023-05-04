@@ -101,6 +101,6 @@ namespace TDL.APIs.Controllers.v1
             _todoService.UpdateSubTaskStatus(id);
 
             return Ok();
-        } 
+        }
     }
 }

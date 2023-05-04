@@ -35,7 +35,7 @@ namespace TDL.Services.Dto.MyDayPage
 
         public bool IsArchieved { get; set; } = false;
 
-        public IList<SubTaskResponse> SubTasks { get; set; }
+        public IList<SubTaskResponse> SubTasks { get; set; } = new List<SubTaskResponse>();
 
         // Tag 
         public ColorDto Tag { get; set; }
@@ -43,4 +43,3 @@ namespace TDL.Services.Dto.MyDayPage
         public DateTime TodoDate { get; set; }
     }
 }
- 

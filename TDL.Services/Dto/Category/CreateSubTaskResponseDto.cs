@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TDL.Services.Dto.Category
 {
@@ -9,5 +7,7 @@ namespace TDL.Services.Dto.Category
         public Guid Id { get; set; }
 
         public string Title { get; set; }
+
+        public bool isCompleted { get; set; } = false;
     }
 }
