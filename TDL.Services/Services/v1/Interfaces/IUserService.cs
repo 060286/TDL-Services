@@ -16,5 +16,7 @@ namespace TDL.Services.Services.v1.Interfaces
         UserInfoDetailResponseDto GetUserInfo(Guid id);
 
         void CreateDummyTag(TagDummyRequestDto tag);
+
+        GetAnalyticTodoResponseDto GetAnalyticTodo(string userName);
     }
 }

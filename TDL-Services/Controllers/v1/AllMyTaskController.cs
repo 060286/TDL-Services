@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using TDL.Infrastructure.Constants;
-using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
 
 namespace TDL.APIs.Controllers.v1
@@ -21,7 +18,7 @@ namespace TDL.APIs.Controllers.v1
         {
             _allMyTaskPageService = allMyTaskPageService;
         }
-        
+
         /// <summary>
         /// Get All Task In All Task Page
         /// </summary>
