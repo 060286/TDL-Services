@@ -31,7 +31,7 @@ namespace TDL.Services.Services.v1.Interfaces
 
         void UpdateSubTaskStatus(Guid id);
 
-        GetMyDayItemDetailResponseDto UpdateTodoTitle(Guid id,string title);
+        GetMyDayItemDetailResponseDto UpdateTodoTitle(Guid id, string title);
 
         GetMyDayItemDetailResponseDto UpdateTodoDescription(Guid id, string description);
 
@@ -46,5 +46,7 @@ namespace TDL.Services.Services.v1.Interfaces
         void RemoveSubTaskById(Guid id);
 
         void UpdateRemindAt(DateTime? remindAt, Guid todoId);
+
+        SearchTodoResponseDto SearchTodo(SearchTodoRequestDto request, string UserName);
     }
 }

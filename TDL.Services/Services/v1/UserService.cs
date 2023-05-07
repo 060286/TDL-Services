@@ -25,15 +25,18 @@ namespace TDL.Services.Services.v1
         private readonly IUnitOfWorkProvider _uowProvider;
         private readonly IRepository<TodoCategory> _todoCategoryRepository;
         private readonly IRepository<Tag> _tagRepository;
+        private readonly IRepository<Todo> _todoRepository;
 
         public UserService(IRepository<User> userRepository, IUnitOfWorkProvider uowProvider,
             IRepository<TodoCategory> todoCategoryRepository,
-            IRepository<Tag> tagRepository)
+            IRepository<Tag> tagRepository,
+            IRepository<Todo> todoRepository)
         {
             _userRepository = userRepository;
             _uowProvider = uowProvider;
             _todoCategoryRepository = todoCategoryRepository;
             _tagRepository = tagRepository;
+            _todoRepository = todoRepository;
         }
 
         #endregion
@@ -43,7 +46,7 @@ namespace TDL.Services.Services.v1
             using var scope = _uowProvider.Provide();
 
             var user = _userRepository.GetAll()
-                .FirstOrDefault(us => us.Email.EqualsInvariant(request.UserName) 
+                .FirstOrDefault(us => us.Email.EqualsInvariant(request.UserName)
                                       && us.Password.EqualsInvariant(request.Password));
 
             Guard.ThrowIfNull<UnauthorizedAccessException>(user, ExceptionConstant.RestrictedResource);
@@ -87,7 +90,7 @@ namespace TDL.Services.Services.v1
 
             var response = _tagRepository.GetAll(true)
                 .FirstOrDefault(x => x.Title.EqualsInvariant(tag.Title));
-            
+
             Guard.ThrowByCondition<BusinessLogicException>(response != null, "Can not create duplicate tag");
 
             Tag result = new Tag()
@@ -97,9 +100,9 @@ namespace TDL.Services.Services.v1
                 Color = tag.Color,
                 TodoId = tag.TodoId,
             };
-            
+
             _tagRepository.Add(result);
-            
+
             scope.Complete();
         }
 
@@ -199,6 +202,40 @@ namespace TDL.Services.Services.v1
                     Title = TodoCategoryConstant.DefualtTodoCategory
                 });
             }
+        }
+
+        public GetAnalyticTodoResponseDto GetAnalyticTodo(string userName)
+        {
+            return new GetAnalyticTodoResponseDto
+            {
+                SevenDayAnalytic = GetAnalyticTodoItem(DateTime.Now, 6, userName, "Weekly Report"),
+                OneMonthAnalytic = GetAnalyticTodoItem(DateTime.Now, 30, userName, "Monthly Report"),
+            };
+        }
+
+        private GetAnalyticTodoItemResponseDto GetAnalyticTodoItem(DateTime now, int dayNumber, string userName, string title)
+        {
+            using var scope = _uowProvider.Provide();
+
+            var totalCountFromDate = _todoRepository.GetAll(true)
+                .Where(x => x.CreatedBy.EqualsInvariant(userName))
+                .Count(x => x.CreatedAt.Value.Date >= now.AddDays(-dayNumber).Date && x.CreatedAt.Value.Date <= now);
+
+            var totalCountCompletedFromDate = _todoRepository.GetAll(true)
+                .Where(x => x.CreatedBy.EqualsInvariant(userName))
+                .Where(x => x.IsCompleted)
+                .Count(x => x.CreatedAt.Value.Date >= now.AddDays(-dayNumber).Date && x.CreatedAt.Value.Date <= now);
+
+            var percentage = totalCountFromDate - totalCountCompletedFromDate;
+
+            scope.Complete();
+
+            return new GetAnalyticTodoItemResponseDto
+            {
+                Id = Guid.NewGuid(),
+                Percentage = percentage,
+                Title = title,
+            };
         }
 
         #endregion

@@ -50,6 +50,45 @@ namespace TDL.Services.Services.v1
 
         #region public method
 
+        public SearchTodoResponseDto SearchTodo(SearchTodoRequestDto request, string UserName)
+        {
+            using var scope = _uow.Provide();
+
+            var tasks = _todoRepository.GetAll(true)
+                .Include(x => x.TodoCategory)
+                .Where(x => x.CreatedBy.EqualsInvariant(UserName))
+                .Where(x => string.IsNullOrEmpty(request.Keyword) || x.Title.ContainInvariant(request.Keyword))
+                .Where(x => !x.IsArchieved)
+                .Select(x => new SearchTodoItemResponseDto
+                {
+                    CategoryId = x.TodoCategory.Id,
+                    Id = x.Id,
+                    Title = x.Title,
+                    CategoryName = x.TodoCategory.Title
+                }).ToList();
+
+            var subTasks = _subtaskRepository.GetAll(true)
+                .Include(st => st.Todo.TodoCategory)
+                .Where(st => st.CreatedBy.EqualsInvariant(UserName))
+                .Where(st => string.IsNullOrEmpty(request.Keyword) || st.Title.ContainInvariant(request.Keyword))
+                .Where(st => !st.Todo.IsArchieved)
+                .Select(st => new SearchTodoItemResponseDto
+                {
+                    Id = st.Todo.Id,
+                    Title = st.Todo.Title,
+                    CategoryName = st.Todo.TodoCategory.Title,
+                    CategoryId = st.Todo.TodoCategory.Id,
+                    SubTaskId = st.Id,
+                    SubTaskTitle = st.Title
+                }).ToList();
+
+            return new SearchTodoResponseDto
+            {
+                SubTasks = subTasks,
+                Tasks = tasks
+            };
+        }
+
         public TodoOfDateResponseDto CreateSimpleTodo(CreateSimpleTodoRequestDto request, string userName)
         {
             using var scope = _uow.Provide();

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.AspNetCore.Authorization;
 using TDL.Services.Dto.TodoDto;
@@ -77,7 +76,7 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult AddTagTodo([FromBody] AddTagTodoRequestDto tag)
         {
             var response = _todoService.AddTagTodo(tag);
-            
+
             return Ok(response);
         }
 
@@ -119,17 +118,25 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok();
         }
+
+        [HttpGet("search-todo")]
+        public IActionResult SearchTodo([FromQuery] SearchTodoRequestDto request)
+        {
+            var result = _todoService.SearchTodo(request, UserName);
+
+            return Ok(result);
+        }
     }
 
     public class RemindAtRequest
     {
         public DateTime? RemindAt { get; set; }
     }
-    
+
     public class AddTagTodo
     {
         public string Tag { get; set; }
-    } 
+    }
 
     public class UpdateTitleOfTodoRequest
     {

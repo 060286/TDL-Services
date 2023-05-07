@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TDL.Domain.Entities;
 using TDL.Services.Dto.User;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -67,6 +66,14 @@ namespace TDL.APIs.Controllers.v1
         public IActionResult ValidateToken()
         {
             return Ok();
+        }
+
+        [HttpGet("analytic-todo")]
+        public IActionResult GetAnalyticTodo()
+        {
+            var result = _userService.GetAnalyticTodo(UserName);
+
+            return Ok(result);
         }
     }
 }
