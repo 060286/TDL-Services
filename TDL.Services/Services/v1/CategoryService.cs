@@ -134,7 +134,7 @@ namespace TDL.Services.Services.v1
                     Id = st.Id,
                     Name = st.Title
                 }).ToList(),
-                TotalSubtask = td.SubTasks.Count(),
+                TotalSubtask = td.SubTasks.Count,
                 CompletedSubtask = td.SubTasks.Count(st => st.CreatedBy.EqualsInvariant(userName))
             })
             .ToList();
@@ -148,23 +148,22 @@ namespace TDL.Services.Services.v1
 
         public CreateSubTaskResponseDto CreateSubTask(CreateSubtaskRequestDto request)
         {
-            using var scope = _uowProvider.Provide();
+            var subTaskId = Guid.NewGuid();
 
-            SubTask subTask = new SubTask
+            using var scope = _uowProvider.Provide();
+            _subtaskRepository.Add(new SubTask
             {
-                Id = Guid.NewGuid(),
+                Id = subTaskId,
                 Title = request.Name,
                 TodoId = request.TodoId,
-            };
-
-            _subtaskRepository.Add(subTask);
+            });
 
             scope.Complete();
 
             return new CreateSubTaskResponseDto()
             {
-                Id = subTask.Id,
-                Title = subTask.Title,
+                Id = subTaskId,
+                Title = request.Name,
             };
         }
 

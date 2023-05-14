@@ -7,7 +7,7 @@ using TDL.Infrastructure.Persistence.Base;
 
 namespace TDL.Domain.Entities
 {
-    public class Todo : BaseEntity
+    public class Todo : BaseEntity, IKey<Guid>
     {
         public Guid Id { get; set; }
 

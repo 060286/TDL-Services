@@ -4,7 +4,7 @@ using TDL.Infrastructure.Persistence.Base;
 
 namespace TDL.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : BaseEntity, IKey<Guid>
     {
         public Guid Id { get; set; }
 

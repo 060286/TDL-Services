@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using TDL.Domain.Entities;
 using TDL.Domain.Helper;
@@ -22,7 +21,7 @@ namespace TDL.Domain.Context
         /// <param name="appSettings"></param>
         public TdlContext(
                 DbContextOptions contextOptions,
-                IOptions<AppSettings> appSettings) 
+                IOptions<AppSettings> appSettings)
             : base(contextOptions, new List<IEntityTypeConfigurationDependency>(), string.Empty, string.Empty)
         {
             //Debugger.Launch();
@@ -31,10 +30,10 @@ namespace TDL.Domain.Context
         }
 
         public TdlContext(
-                DbContextOptions contextOptions, 
+                DbContextOptions contextOptions,
                 IEnumerable<IEntityTypeConfigurationDependency> entityTypeConfigurations,
                 IOptions<AppSettings> appSettings,
-                string username, 
+                string username,
                 string requestedTimeZone
             ) : base(contextOptions, entityTypeConfigurations, username, requestedTimeZone)
         {
@@ -66,11 +65,10 @@ namespace TDL.Domain.Context
 
         private void ExcludeEntitiesFromMigration(ModelBuilder modelBuilder)
         {
-            if(MigrationHelper.IsMigrationOperationExcuting())
+            if (MigrationHelper.IsMigrationOperationExcuting())
             {
                 //Ignore Something
             }
         }
     }
 }
- 

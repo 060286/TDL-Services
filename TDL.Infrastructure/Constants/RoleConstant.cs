@@ -1,6 +1,6 @@
 ﻿namespace TDL.Infrastructure.Constants
 {
-    public class RoleConstant
+    public static class RoleConstant
     {
         public const string Admin = nameof(Admin);
     }

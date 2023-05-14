@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TDL.Infrastructure.Persistence.Base;
 
 namespace TDL.Domain.Entities
 {
-    public class UserWorkspace
+    public class UserWorkspace : BaseEntity, IKey<Guid>
     {
         public Guid Id { get; set; }
 
