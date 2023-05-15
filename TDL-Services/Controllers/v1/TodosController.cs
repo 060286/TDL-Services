@@ -126,6 +126,14 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok(result);
         }
+
+        [HttpGet("view-archived-task-report")]
+        public IActionResult GetArchivedTaskReport()
+        {
+            var result = _todoService.ViewArchivedTaskRequest(UserName);
+
+            return Ok(result);
+        }
     }
 
     public class RemindAtRequest
