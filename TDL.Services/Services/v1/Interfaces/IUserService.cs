@@ -18,5 +18,7 @@ namespace TDL.Services.Services.v1.Interfaces
         void CreateDummyTag(TagDummyRequestDto tag);
 
         GetAnalyticTodoResponseDto GetAnalyticTodo(string userName);
+
+        void ResertPassword(ResetPasswordRequestDto request);
     }
 }

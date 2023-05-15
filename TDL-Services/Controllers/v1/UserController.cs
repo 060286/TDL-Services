@@ -35,7 +35,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok();
         }
 
-
         [AllowAnonymous]
         [HttpGet("search-user")]
         public IActionResult SearchUser([FromQuery] string keyword)
@@ -74,6 +73,15 @@ namespace TDL.APIs.Controllers.v1
             var result = _userService.GetAnalyticTodo(UserName);
 
             return Ok(result);
+        }
+
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public IActionResult ResetPassword([FromBody] ResetPasswordRequestDto request)
+        {
+            _userService.ResertPassword(request);
+
+            return Ok();
         }
     }
 }

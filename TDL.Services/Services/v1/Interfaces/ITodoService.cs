@@ -48,5 +48,7 @@ namespace TDL.Services.Services.v1.Interfaces
         void UpdateRemindAt(DateTime? remindAt, Guid todoId);
 
         SearchTodoResponseDto SearchTodo(SearchTodoRequestDto request, string UserName);
+
+        ViewArchivedTaskReportResponseDto ViewArchivedTaskRequest(string userName);
     }
 }

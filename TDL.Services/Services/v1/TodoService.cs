@@ -50,6 +50,73 @@ namespace TDL.Services.Services.v1
 
         #region public method
 
+        public ViewArchivedTaskReportResponseDto ViewArchivedTaskRequest(string userName)
+        {
+            using var scope = _uow.Provide();
+            var date = DateTime.Now;
+            var diff = date.DayOfWeek - DayOfWeek.Monday;
+            var weekStartDate = date.AddDays(-diff).Date;
+            var weekEndDate = weekStartDate.AddDays(6);
+
+            var totalTaskArchivedCounter = _todoRepository.GetAll(true)
+                .IgnoreQueryFilters()
+                .Count(todo => todo.IsArchieved && todo.CreatedBy.EqualsInvariant(userName));
+
+            var totalTaskArchivedThisWeekCounter = _todoRepository.GetAll(true)
+                .IgnoreQueryFilters()
+                .Where(todo => todo.CreatedAt >= weekStartDate && todo.CreatedAt <= weekEndDate)
+                .Count(todo => todo.IsArchieved && todo.CreatedBy.EqualsInvariant(userName));
+
+            var totalTaskArchivedTodayCounter = _todoRepository.GetAll(true)
+                .IgnoreQueryFilters()
+                .Count(todo => todo.IsArchieved &&
+                    todo.CreatedBy.EqualsInvariant(userName) &&
+                    todo.CreatedAt.Value.Date == date.Date);
+
+            var archivedDataList = _todoRepository.GetAll(true)
+                .IgnoreQueryFilters()
+                .Where(todo => todo.IsArchieved &&
+                    todo.CreatedBy.EqualsInvariant(userName))
+                .Select(x => x.CreatedAt.Value.Date)
+                .Distinct()
+                .ToList();
+
+            IList<ViewArchivedTaskItem> viewArchivedTaskItems = new List<ViewArchivedTaskItem>();
+
+            foreach (var dateItem in archivedDataList)
+            {
+                var response = new ViewArchivedTaskItem
+                {
+                    ArchivedDate = dateItem.Date,
+                    ArchivedTasks = _todoRepository.GetAll(true)
+                        .IgnoreQueryFilters()
+                        .Include(td => td.TodoCategory)
+                        .Where(todo => todo.IsArchieved &&
+                            todo.CreatedBy.EqualsInvariant(userName))
+                        .Select(td => new ViewArchivedTask
+                        {
+                            CategoryTitle = td.TodoCategory.Title,
+                            IsArchived = true,
+                            Title = td.Title
+                        })
+                        .ToList()
+                };
+
+                viewArchivedTaskItems.Add(response);
+            }
+
+            return new ViewArchivedTaskReportResponseDto
+            {
+                ArchivedCounter = new ViewArchivedTaskCountItem
+                {
+                    ThisWeekCount = totalTaskArchivedThisWeekCounter,
+                    TodayCount = totalTaskArchivedTodayCounter,
+                    TotalItemCount = totalTaskArchivedCounter
+                },
+                ArchivedTaskList = viewArchivedTaskItems
+            };
+        }
+
         public SearchTodoResponseDto SearchTodo(SearchTodoRequestDto request, string UserName)
         {
             using var scope = _uow.Provide();
@@ -241,6 +308,8 @@ namespace TDL.Services.Services.v1
                 .FirstOrDefault(tdc => tdc.Id.Equals(id));
 
             Guard.ThrowIfNull<NotFoundException>(todo, nameof(Todo));
+
+            todo.IsArchieved = true;
 
             _todoRepository.Delete(todo);
 

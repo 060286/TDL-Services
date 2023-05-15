@@ -41,6 +41,26 @@ namespace TDL.Services.Services.v1
 
         #endregion
 
+        public void ResertPassword(ResetPasswordRequestDto request)
+        {
+            using var scope = _uowProvider.Provide();
+
+            var user = _userRepository.GetAll()
+                .FirstOrDefault(user => user.Email.EqualsInvariant(request.Email));
+
+            Guard.ThrowByCondition<NotFoundException>(user == null, "Cannot fid user by email");
+            Guard.ThrowByCondition<BusinessLogicException>(!request.ConfirmPassword.EqualsInvariant(request.NewPassword),
+                "Confirm password and new password do not match");
+            Guard.ThrowByCondition<BusinessLogicException>(user.Password.EqualsInvariant(request.ConfirmPassword) ||
+                user.Password.EqualsInvariant(request.NewPassword),
+                "Old password is matched with new password");
+
+            user.Password = request.NewPassword;
+
+            _userRepository.Update(user);
+            scope.Complete();
+        }
+
         public UserLoginResponseDto LoginAndGetUserToken(UserLoginRequestDto request)
         {
             using var scope = _uowProvider.Provide();
