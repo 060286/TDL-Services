@@ -12,6 +12,11 @@ namespace TDL.Domain.EntityMapping
         public override void Configure(EntityTypeBuilder<Workspace> builder)
         {
             builder.Property(x => x.Name).IsRequired();
+
+            builder.HasMany<Section>(ws => ws.Sections)
+                .WithOne(ws => ws.Workspace)
+                .HasForeignKey(ws => ws.WorkspaceId)
+                .IsRequired();
         }
     }
 }

@@ -173,7 +173,7 @@ namespace TDL.Services.Services.v1
                     Id = re.Id,
                     Email = re.Email,
                     Img = re.Img,
-                    UserName = re.UserName
+                    UserName = $"{re.FirstName} {re.LastName}"
                 }).ToList();
 
             return result;

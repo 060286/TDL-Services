@@ -7,7 +7,7 @@ using TDL.Infrastructure.Persistence.Base;
 
 namespace TDL.Domain.Entities
 {
-    public class Todo : BaseEntity
+    public class Todo : BaseEntity, IKey<Guid>
     {
         public Guid Id { get; set; }
 
@@ -33,6 +33,8 @@ namespace TDL.Domain.Entities
 
         public Guid? WorkspaceId { get; set; }
 
+        public Guid? SectionId { get; set; }
+
         // Tag 
         public string Tag { get; set; } = TagDefinition.Priority.ToString();
 
@@ -45,5 +47,7 @@ namespace TDL.Domain.Entities
         public virtual IList<Tag> Tags { get; set; }
 
         public virtual Workspace Workspace { get; set; }
+
+        public virtual Section Section { get; set; }
     }
 }

@@ -55,6 +55,8 @@ namespace TDL.Domain.Context
 
         public DbSet<UserWorkspace> UserWorkspaces { get; set; }
 
+        public DbSet<Section> Sections { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
