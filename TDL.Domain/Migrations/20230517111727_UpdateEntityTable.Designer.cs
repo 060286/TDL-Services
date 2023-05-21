@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TDL.Domain.Context;
 
 namespace TDL.Domain.Migrations
 {
     [DbContext(typeof(TdlContext))]
-    partial class TdlContextModelSnapshot : ModelSnapshot
+    [Migration("20230517111727_UpdateEntityTable")]
+    partial class UpdateEntityTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,52 +21,6 @@ namespace TDL.Domain.Migrations
                 .HasAnnotation("ProductVersion", "3.1.21")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("TDL.Domain.Entities.Section", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("WorkspaceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WorkspaceId");
-
-                    b.ToTable("Sections");
-                });
 
             modelBuilder.Entity("TDL.Domain.Entities.SubTask", b =>
                 {
@@ -197,9 +153,6 @@ namespace TDL.Domain.Migrations
                     b.Property<DateTime?>("RemindedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("SectionId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
@@ -225,8 +178,6 @@ namespace TDL.Domain.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("SectionId");
 
                     b.HasIndex("WorkspaceId");
 
@@ -416,15 +367,6 @@ namespace TDL.Domain.Migrations
                     b.ToTable("Workspaces");
                 });
 
-            modelBuilder.Entity("TDL.Domain.Entities.Section", b =>
-                {
-                    b.HasOne("TDL.Domain.Entities.Workspace", "Workspace")
-                        .WithMany("Sections")
-                        .HasForeignKey("WorkspaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TDL.Domain.Entities.SubTask", b =>
                 {
                     b.HasOne("TDL.Domain.Entities.Todo", "Todo")
@@ -444,10 +386,6 @@ namespace TDL.Domain.Migrations
                     b.HasOne("TDL.Domain.Entities.TodoCategory", "TodoCategory")
                         .WithMany("Todos")
                         .HasForeignKey("CategoryId");
-
-                    b.HasOne("TDL.Domain.Entities.Section", "Section")
-                        .WithMany("Todos")
-                        .HasForeignKey("SectionId");
 
                     b.HasOne("TDL.Domain.Entities.Workspace", "Workspace")
                         .WithMany("Todos")

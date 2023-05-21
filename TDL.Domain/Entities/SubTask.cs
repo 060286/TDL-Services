@@ -3,7 +3,7 @@ using TDL.Infrastructure.Persistence.Base;
 
 namespace TDL.Domain.Entities
 {
-    public class SubTask : BaseEntity
+    public class SubTask : BaseEntity, IKey<Guid>
     {
         public Guid Id { get; set; }
 

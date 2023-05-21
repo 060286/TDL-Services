@@ -9,6 +9,8 @@
     <Compile Remove="Migrations\20230119035605_CreateUserAndWorkspaceTable.Designer.cs" />
     <Compile Remove="Migrations\20230119042209_CreateUserAndWorkspaceTable.cs" />
     <Compile Remove="Migrations\20230119042209_CreateUserAndWorkspaceTable.Designer.cs" />
+    <Compile Remove="Migrations\20230521031224_CreateSectionTable.cs" />
+    <Compile Remove="Migrations\20230521031224_CreateSectionTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

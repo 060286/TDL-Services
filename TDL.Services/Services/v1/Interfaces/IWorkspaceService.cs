@@ -1,11 +1,18 @@
-﻿using TDL.Services.Dto.Workspace;
+﻿using System;
+using System.Collections.Generic;
+using TDL.Domain.Entities;
+using TDL.Services.Dto.Workspace;
 
 namespace TDL.Services.Services.v1.Interfaces
 {
     public interface IWorkspaceService
     {
-        void CreateWorkspace(CreateWorkspaceRequestDto request);
+        CreateWorkspaceResponseDto CreateWorkspace(CreateWorkspaceRequestDto request, Guid userId);
 
         void CreateTodoInWorkspace(CreateTodoWorkspaceRequestDto request);
+
+        IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName);
+
+        GetWorkspaceDetailResponseDto GetWorkspaceById(Guid id, string userName);
     }
 }
