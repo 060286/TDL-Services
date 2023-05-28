@@ -19,5 +19,7 @@ namespace TDL.Services.Dto.Workspace
         public Guid Id { get; set; }
 
         public string Img { get; set; }
+
+        public string UserName { get; set; }
     }
 }

@@ -114,7 +114,7 @@ namespace TDL_Services
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<NotificationHub>("/hubs/notification");
+                endpoints.MapHub<NotificationHub>("/hubs/notifications");
                 endpoints.MapHealthChecks(ConfigurationConstant.HealthCheckPath, new HealthCheckOptions());
                 endpoints.MapControllers().RequireAuthorization();
             });

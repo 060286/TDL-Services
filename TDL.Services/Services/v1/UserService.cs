@@ -14,6 +14,7 @@ using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using TDL.Infrastructure.Utilities;
 using TDL.Services.Dto.User;
 using TDL.Services.Services.v1.Interfaces;
+using TDL.Services.Dto.Workspace;
 
 namespace TDL.Services.Services.v1
 {
@@ -26,20 +27,38 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<TodoCategory> _todoCategoryRepository;
         private readonly IRepository<Tag> _tagRepository;
         private readonly IRepository<Todo> _todoRepository;
+        private readonly IRepository<Notification> _notificationRepository;
 
         public UserService(IRepository<User> userRepository, IUnitOfWorkProvider uowProvider,
             IRepository<TodoCategory> todoCategoryRepository,
             IRepository<Tag> tagRepository,
-            IRepository<Todo> todoRepository)
+            IRepository<Todo> todoRepository,
+            IRepository<Notification> notificationRepository)
         {
             _userRepository = userRepository;
             _uowProvider = uowProvider;
             _todoCategoryRepository = todoCategoryRepository;
             _tagRepository = tagRepository;
             _todoRepository = todoRepository;
+            _notificationRepository = notificationRepository;
         }
 
         #endregion
+
+        public IList<GetNotificationResponseDto> GetNotifications(Guid userId)
+        {
+            using var scope = _uowProvider.Provide();
+
+            var notifications = _notificationRepository.GetAll(true)
+                .Where(nf => nf.OwnerId == userId)
+                .Select(nf => new GetNotificationResponseDto
+                {
+                    Id = nf.Id,
+                    Content = nf.Content
+                }).ToList();
+
+            return notifications;
+        }
 
         public void ResertPassword(ResetPasswordRequestDto request)
         {
@@ -174,7 +193,9 @@ namespace TDL.Services.Services.v1
                     Email = re.Email,
                     Img = re.Img,
                     UserName = $"{re.FirstName} {re.LastName}"
-                }).ToList();
+                })
+                .Take(5)
+                .ToList();
 
             return result;
         }

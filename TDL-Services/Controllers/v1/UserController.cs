@@ -83,5 +83,13 @@ namespace TDL.APIs.Controllers.v1
 
             return Ok();
         }
+
+        [HttpGet("notifications")]
+        public IActionResult GetNotifications()
+        {
+            var response = _userService.GetNotifications(UserId);
+
+            return Ok(response);
+        }
     }
 }

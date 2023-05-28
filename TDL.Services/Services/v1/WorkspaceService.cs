@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Net.Mail;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Exceptions;
@@ -10,8 +12,11 @@ using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
 using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using TDL.Infrastructure.Utilities;
+using TDL.Services.Dto;
 using TDL.Services.Dto.Workspace;
 using TDL.Services.Services.v1.Interfaces;
+using TDL.Services.SignalR.Hubs;
+using TDL.Services.SignalR.Hubs.Interfaces;
 
 namespace TDL.Services.Services.v1
 {
@@ -23,13 +28,17 @@ namespace TDL.Services.Services.v1
         private readonly IRepository<UserWorkspace> _userWorkspaceRepository;
         private readonly IRepository<Todo> _todoRepository;
         private readonly IRepository<Section> _sectionRepository;
+        private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
+        private readonly IRepository<Notification> _notificationRepository;
 
         public WorkspaceService(IRepository<Workspace> workspaceRepository,
             IUnitOfWorkProvider uow,
             IRepository<User> userRepository,
             IRepository<UserWorkspace> userWorkspaceRepository,
             IRepository<Todo> todoRepository, 
-            IRepository<Section> sectionRepository)
+            IRepository<Section> sectionRepository,
+            IHubContext<NotificationHub, INotificationClient> hubContext, 
+            IRepository<Notification> notificationRepository)
         {
             _uow = uow;
             _workspaceRepository = workspaceRepository;
@@ -37,6 +46,8 @@ namespace TDL.Services.Services.v1
             _userWorkspaceRepository = userWorkspaceRepository;
             _todoRepository = todoRepository;
             _sectionRepository = sectionRepository;
+            _hubContext = hubContext;
+            _notificationRepository = notificationRepository;
         }
 
         public CreateWorkspaceResponseDto CreateWorkspace(CreateWorkspaceRequestDto request, Guid userId)
@@ -68,43 +79,7 @@ namespace TDL.Services.Services.v1
             };
             _userWorkspaceRepository.Add(userWorkspace);
 
-            // Build Default Section
-            IList<Section> sections = new List<Section>
-            {
-                new Section
-                {
-                    Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
-                    Priority = 1,
-                    Description = $"Desc of {SectionNameConstant.Todo}",
-                    WorkspaceId = workspaceId,
-                },
-                new Section
-                {
-                    Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
-                    Priority = 1,
-                    Description = $"Desc of {SectionNameConstant.Todo}",
-                    WorkspaceId = workspaceId,
-                },
-                new Section
-                {
-                    Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
-                    Priority = 1,
-                    Description = $"Desc of {SectionNameConstant.Todo}",
-                    WorkspaceId = workspaceId,
-                },
-                new Section
-                {
-                    Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
-                    Priority = 1,
-                    Description = $"Desc of {SectionNameConstant.Todo}",
-                    WorkspaceId = workspaceId,
-
-                },
-            };
+            var sections = BuildSection(workspaceId);
 
             _sectionRepository.AddRange(sections);
 
@@ -145,15 +120,16 @@ namespace TDL.Services.Services.v1
         {
             using var scope = _uow.Provide();
 
-            var workspaces = _workspaceRepository.GetAll(true)
-                .Where(ws => ws.CreatedBy.EqualsInvariant(userName))
-                .Select(ws => new GetWorkspaceResponseDto
+            var workspaces = _userWorkspaceRepository.GetAll(true)
+                .Include(uw => uw.User)
+                .Include(uw => uw.Workspace)
+                .Where(uw => uw.User.UserName.EqualsInvariant(userName))
+                .Select(uw => new GetWorkspaceResponseDto
                 {
-                    Id = ws.Id,
-                    Name = ws.Name,
-                    Description = ws.Description,
-                })
-                .ToList();
+                    Id = uw.WorkspaceId,
+                    Description = uw.Workspace.Description,
+                    Name = uw.Workspace.Name,
+                }).ToList();
 
             return workspaces;   
         }
@@ -164,7 +140,7 @@ namespace TDL.Services.Services.v1
 
             var response = _workspaceRepository.GetAll(true)
                 .Include(ws => ws.UserWorkspaces)
-                .Where(ws => ws.Id == id && ws.CreatedBy.EqualsInvariant(userName))
+                .Where(ws => ws.Id == id || ws.CreatedBy.EqualsInvariant(userName))
                 .Select(ws => new GetWorkspaceDetailResponseDto
                 {
                     Id = ws.Id,
@@ -176,7 +152,8 @@ namespace TDL.Services.Services.v1
                         (workspace, user) => new UserInfoDetail
                         {
                             Id = user.Id,
-                            Img = user.Img
+                            Img = user.Img,
+                            UserName = $"{user.FirstName} {user.LastName}"
                         }).ToList()
                 })
                 .FirstOrDefault();
@@ -184,6 +161,94 @@ namespace TDL.Services.Services.v1
             Guard.ThrowIfNull<NotFoundException>(response, $"Not found {nameof(Workspace)}");
 
             return response;
+        }
+
+        public void AddUserIntoWorkspace(AddUserIntoWorkspaceRequestDto requestDto, Guid userId)
+        {
+            using var scope = _uow.Provide();
+
+            var owner = _userRepository.GetAll(true)
+                .FirstOrDefault(us => us.Email.EqualsInvariant(requestDto.Email));
+
+            var actor = _userRepository.GetAll(true)
+                .FirstOrDefault(us => us.Id == userId);
+
+            Guard.ThrowIfNull<NotFoundException>(owner, "Cannot found owner");
+            Guard.ThrowIfNull<NotFoundException>(actor, "Cannot found actir");
+
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                OwnerId = owner.Id,
+                ActorId = actor.Id,
+                Content = $"{actor.FirstName} {actor.LastName} added you into workspace",
+                IsViewed = false,
+                Title = "Add User Into Workspace",
+            };
+
+            var userWorkspace = new UserWorkspace
+            {
+                Id = Guid.NewGuid(),
+                WorkspaceId = requestDto.WorkspaceId,
+                UserId = owner.Id,
+            };
+
+            _notificationRepository.Add(notification);
+            _userWorkspaceRepository.Add(userWorkspace);
+
+            scope.SaveChanges();
+            scope.Complete();
+
+            // Send notification
+            _hubContext.Clients.User(owner.UserName).SendNotification(new NotificationResponseDto
+            {
+                Content = $"{actor.FirstName} {actor.LastName} added you into workspace!",
+                Id = Guid.NewGuid(),
+                Type = NotificationType.AddUserWorkspace.ToString()
+            }); ;
+        }
+
+        private IList<Section> BuildSection(Guid workspaceId)
+        {
+            // Build Default Section
+            IList<Section> sections = new List<Section>
+            {
+                new Section
+                {
+                    Id = Guid.NewGuid(),
+                    Name = SectionNameConstant.Todo,
+                    Priority = 1,
+                    Description = $"Desc of {SectionNameConstant.Todo}",
+                    WorkspaceId = workspaceId,
+                },
+                new Section
+                {
+                    Id = Guid.NewGuid(),
+                    Name = SectionNameConstant.Todo,
+                    Priority = 1,
+                    Description = $"Desc of {SectionNameConstant.InProgress}",
+                    WorkspaceId = workspaceId,
+                },
+                new Section
+                {
+                    Id = Guid.NewGuid(),
+                    Name = SectionNameConstant.Todo,
+                    Priority = 1,
+                    Description = $"Desc of {SectionNameConstant.InReview}",
+                    WorkspaceId = workspaceId,
+                },
+                new Section
+                {
+                    Id = Guid.NewGuid(),
+                    Name = SectionNameConstant.Todo,
+                    Priority = 1,
+                    Description = $"Desc of {SectionNameConstant.Completed}",
+                    WorkspaceId = workspaceId,
+
+                },
+            };
+
+            return sections;
         }
     }
 }

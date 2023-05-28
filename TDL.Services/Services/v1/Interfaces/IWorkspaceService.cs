@@ -14,5 +14,7 @@ namespace TDL.Services.Services.v1.Interfaces
         IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName);
 
         GetWorkspaceDetailResponseDto GetWorkspaceById(Guid id, string userName);
+
+        void AddUserIntoWorkspace(AddUserIntoWorkspaceRequestDto requestDto, Guid userId);
     }
 }
