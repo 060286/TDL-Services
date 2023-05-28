@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using TDL.Domain.Entities;
 using TDL.Services.Dto.User;
+using TDL.Services.Dto.Workspace;
 
 namespace TDL.Services.Services.v1.Interfaces
 {
@@ -20,5 +20,7 @@ namespace TDL.Services.Services.v1.Interfaces
         GetAnalyticTodoResponseDto GetAnalyticTodo(string userName);
 
         void ResertPassword(ResetPasswordRequestDto request);
+
+        IList<GetNotificationResponseDto> GetNotifications(Guid userId);
     }
 }

@@ -11,6 +11,14 @@
     <Compile Remove="Migrations\20230119042209_CreateUserAndWorkspaceTable.Designer.cs" />
     <Compile Remove="Migrations\20230521031224_CreateSectionTable.cs" />
     <Compile Remove="Migrations\20230521031224_CreateSectionTable.Designer.cs" />
+    <Compile Remove="Migrations\20230521031545_AddSectionTable.cs" />
+    <Compile Remove="Migrations\20230521031545_AddSectionTable.Designer.cs" />
+    <Compile Remove="Migrations\20230525135810_AddNotificationTable.cs" />
+    <Compile Remove="Migrations\20230525135810_AddNotificationTable.Designer.cs" />
+    <Compile Remove="Migrations\20230525140235_AddNotificationTable.cs" />
+    <Compile Remove="Migrations\20230525140235_AddNotificationTable.Designer.cs" />
+    <Compile Remove="Migrations\20230525163143_AddNotificationTable.cs" />
+    <Compile Remove="Migrations\20230525163143_AddNotificationTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

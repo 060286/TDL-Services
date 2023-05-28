@@ -57,6 +57,8 @@ namespace TDL.Domain.Context
 
         public DbSet<Section> Sections { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
