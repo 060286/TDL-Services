@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Azure.Core;
+using DocumentFormat.OpenXml.VariantTypes;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Linq.Dynamic.Core;
 using System.Net.Mail;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
+using TDL.Infrastructure.Enums;
 using TDL.Infrastructure.Exceptions;
 using TDL.Infrastructure.Extensions;
 using TDL.Infrastructure.Persistence.Repositories.Repositories;
@@ -22,6 +25,8 @@ namespace TDL.Services.Services.v1
 {
     public class WorkspaceService : IWorkspaceService
     {
+        #region constructor
+
         private readonly IRepository<Workspace> _workspaceRepository;
         private readonly IUnitOfWorkProvider _uow;
         private readonly IRepository<User> _userRepository;
@@ -48,6 +53,33 @@ namespace TDL.Services.Services.v1
             _sectionRepository = sectionRepository;
             _hubContext = hubContext;
             _notificationRepository = notificationRepository;
+        }
+
+        #endregion
+
+        #region implement method
+
+        public void DragDropTodoInWorkspace()
+        {
+            throw new NotImplementedException();
+        }
+
+        public GetTodoListInWorkspaceResponseDto GetTodoListInWorkspace(GetTodoListInWorkspaceRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            var todoList = GetTodoListBySectionName(sectionName: SectionNameConstant.Todo, request.Id);
+            var inProgressList = GetTodoListBySectionName(sectionName: SectionNameConstant.InProgress, request.Id);
+            var inReviewList = GetTodoListBySectionName(sectionName: SectionNameConstant.InReview, request.Id);
+            var completedList = GetTodoListBySectionName(sectionName: SectionNameConstant.Completed, request.Id);
+
+            return new GetTodoListInWorkspaceResponseDto
+            {
+                TodoList = todoList,
+                InProgressList = inProgressList,
+                CompletedList = completedList,
+                InReviewList = inReviewList,
+            };
         }
 
         public CreateWorkspaceResponseDto CreateWorkspace(CreateWorkspaceRequestDto request, Guid userId)
@@ -94,27 +126,27 @@ namespace TDL.Services.Services.v1
             };
         }
 
-        public void CreateTodoInWorkspace(CreateTodoWorkspaceRequestDto request)
-        {
-            using var scope = _uow.Provide();
+        //public void CreateTodoInWorkspace(CreateTodoWorkspaceRequestDto request)
+        //{
+        //    using var scope = _uow.Provide();
 
-            var workspace = _workspaceRepository.Get(request.WorkspaceId);
+        //    var workspace = _workspaceRepository.Get(request.WorkspaceId);
 
-            Guard.ThrowIfNull<NotFoundException>(workspace, nameof(Workspace));
+        //    Guard.ThrowIfNull<NotFoundException>(workspace, nameof(Workspace));
 
-            var todo = new Todo
-            {
-                Id = Guid.NewGuid(),
-                Description = request.Description,
-                RemindedAt = request.RemindedAt,
-                Title = request.Title,
-                Status = request.Status,
-            };
+        //    var todo = new Todo
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        Description = request.Description,
+        //        RemindedAt = request.RemindedAt,
+        //        Title = request.Title,
+        //        Status = request.Status,
+        //    };
 
-            _todoRepository.Add(todo);
+        //    _todoRepository.Add(todo);
 
-            scope.Complete();
-        }
+        //    scope.Complete();
+        //}
 
         public IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName)
         {
@@ -205,8 +237,70 @@ namespace TDL.Services.Services.v1
                 Content = $"{actor.FirstName} {actor.LastName} added you into workspace!",
                 Id = Guid.NewGuid(),
                 Type = NotificationType.AddUserWorkspace.ToString()
-            }); ;
+            });
         }
+
+        
+
+        public AddTodoInWorkspaceResponseDto AddTodoInWorkspace(AddTodoIntoWorkspaceRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            var workspace = _workspaceRepository.GetAll()
+                .FirstOrDefault(ws => ws.Id == request.WorkspaceId);
+
+            var sectionsList = _sectionRepository.GetAll(true)
+                .Where(se => se.WorkspaceId == workspace.Id)
+                .ToList();
+
+            List<int> maxPriority = _todoRepository.GetAll()
+                .Where(td => td.WorkspaceId == request.WorkspaceId)
+                .Select(x => x.Priority)
+                .ToList();
+
+            Guard.ThrowIfNull<NotFoundException>(workspace, $"Cannot find workspace by Id: {request.WorkspaceId}");
+            Guard.ThrowByCondition<NotFoundException>(!sectionsList.Any(), $"Cannot find sections by WorkspaceId: {request.WorkspaceId}");
+
+            Todo newTodo = new Todo
+            {
+                Id = Guid.NewGuid(),
+                WorkspaceId = workspace.Id,
+                Title = request.Title,
+                Description = request.Description,
+                //SectionId = request.SectionId,
+                SectionId = sectionsList[0].Id,
+                IsArchieved = false,
+                IsCompleted = false,
+                Priority = maxPriority.Any() ? maxPriority.Max() + 1 : 1,
+                RemindedAt = null,
+                Tag = TagDefinition.Nothing.ToString(),
+            };
+
+            _todoRepository.Add(newTodo);
+
+            scope.SaveChanges();
+            scope.Complete();
+
+            return new AddTodoInWorkspaceResponseDto
+            {
+                Id = newTodo.Id,
+                WorkspaceId = newTodo.WorkspaceId,
+                Description = newTodo.Description,
+                IsArchieved = false,
+                IsCompleted = false,
+                Priority = newTodo.Priority,
+                Tag = newTodo.Tag,
+                RemindedAt = newTodo.RemindedAt,
+                TodoDate = newTodo.TodoDate,
+                Title = newTodo.Title,
+                SectionId = newTodo.SectionId,
+                CategoryId = null,
+            };
+        }
+
+        #endregion
+
+        #region private method
 
         private IList<Section> BuildSection(Guid workspaceId)
         {
@@ -250,5 +344,15 @@ namespace TDL.Services.Services.v1
 
             return sections;
         }
+
+        private IList<Todo> GetTodoListBySectionName(string sectionName, Guid id)
+        {
+            return _todoRepository.GetAll(true)
+                .Where(td => td.WorkspaceId == id)
+                .Where(td => td.Section.Name.EqualsInvariant(sectionName))
+                .ToList();
+        }
+
+        #endregion
     }
 }

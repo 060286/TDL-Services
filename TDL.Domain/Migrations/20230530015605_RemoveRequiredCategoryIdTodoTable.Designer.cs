@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TDL.Domain.Context;
 
 namespace TDL.Domain.Migrations
 {
     [DbContext(typeof(TdlContext))]
-    partial class TdlContextModelSnapshot : ModelSnapshot
+    [Migration("20230530015605_RemoveRequiredCategoryIdTodoTable")]
+    partial class RemoveRequiredCategoryIdTodoTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
