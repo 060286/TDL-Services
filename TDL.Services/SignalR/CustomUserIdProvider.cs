@@ -1,8 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
-using IdentityModel;
-using Microsoft.AspNetCore.SignalR;
-using System;
-using TDL.Infrastructure.Extensions;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace TDL.Services.SignalR
 {

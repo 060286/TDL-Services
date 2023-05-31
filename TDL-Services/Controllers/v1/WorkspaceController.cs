@@ -19,7 +19,6 @@ namespace TDL.APIs.Controllers.v1
         private readonly IHubContext<NotificationHub> _hubContext1;
         private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
 
-
         public WorkspaceController(IWorkspaceService workspaceService,
             IHubContext<NotificationHub> hubContext1,
             IHubContext<NotificationHub, INotificationClient> hubContext)
@@ -50,14 +49,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok(result);
         }
 
-        [HttpPost("todo-in-workspace")]
-        public IActionResult CreateTodoInWorkspace([FromBody] CreateTodoWorkspaceRequestDto request)
-        {
-            _workspaceService.CreateTodoInWorkspace(request);
-
-            return Ok();
-        }
-
         [HttpGet("workspaces")]
         public IActionResult GetWorkspace()
         {
@@ -77,6 +68,8 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("{workspaceId}/todos-in-workspace")]
         public IActionResult GetTodosInWorkspaceById(Guid workspaceId)
         {
+
+
             return Ok();
         }
 
@@ -101,7 +94,28 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("{workspaceId}/todos")]
         public IActionResult GetTodoInWorkspaceById(Guid workspaceId)
         {
+            var result = _workspaceService.GetTodoListInWorkspace(new GetTodoListInWorkspaceRequestDto
+            {
+                Id = workspaceId
+            });
 
+            return Ok(result);
+        }
+
+        [HttpPost("add-todo-workspace")]
+        public IActionResult AddTodoInWorkspace([FromBody] AddTodoIntoWorkspaceRequestDto request)
+        {
+            request.AddDate = DateTime.Now;
+
+            var result = _workspaceService.AddTodoInWorkspace(request);
+
+            return Ok(result);
+        }
+
+        [HttpPut("drag-drop-todo-workspace")]
+        public IActionResult DragDropTodoInWorkspace()
+        {
+            //_workspaceService
 
             return Ok();
         }
