@@ -52,7 +52,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("workspaces")]
         public IActionResult GetWorkspace()
         {
-            var result = _workspaceService.GetAllWorkspaces(UserName);
+            var result = _workspaceService.GetAllWorkspaces(UserName, UserId);
 
             return Ok(result);
         }
@@ -113,9 +113,9 @@ namespace TDL.APIs.Controllers.v1
         }
 
         [HttpPut("drag-drop-todo-workspace")]
-        public IActionResult DragDropTodoInWorkspace()
+        public IActionResult DragDropTodoInWorkspace([FromBody] DragDropTodoInWorkspaceRequestDto requestDto)
         {
-            //_workspaceService
+            _workspaceService.DragDropTodoInWorkspace(requestDto);
 
             return Ok();
         }

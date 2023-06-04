@@ -15,5 +15,7 @@ namespace TDL.Services.Dto.Workspace
         public Guid? SectionId { get; set; }
 
         public string SectionName { get; set; }
+
+        public int Position { get; set; }
     }
 }
