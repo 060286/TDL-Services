@@ -8,8 +8,6 @@ namespace TDL.Services.SignalR
         {
             var userName = connection.GetHttpContext().Request.Query["userName"];
 
-            //var userName = connection.User?.FindFirst(JwtClaimTypes.PreferredUserName)?.Value?.GetUserNameFromMailAddress();
-
             return userName;
         }
     }

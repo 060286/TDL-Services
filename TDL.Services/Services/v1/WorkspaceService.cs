@@ -1,12 +1,10 @@
-﻿using Azure.Core;
-using DocumentFormat.OpenXml.VariantTypes;
+﻿using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Net.Mail;
 using TDL.Domain.Entities;
 using TDL.Infrastructure.Constants;
 using TDL.Infrastructure.Enums;
@@ -59,9 +57,105 @@ namespace TDL.Services.Services.v1
 
         #region implement method
 
-        public void DragDropTodoInWorkspace()
+        public void DragDropTodoInWorkspace(DragDropTodoInWorkspaceRequestDto requestDto)
         {
-            throw new NotImplementedException();
+            using var scope = _uow.Provide();
+
+            var dragTodo = _todoRepository.GetAll(true)
+                .Include(td => td.Section)
+                .FirstOrDefault(td => td.Id == requestDto.TodoId);
+
+            requestDto.SectionName = requestDto.DroppableId switch
+            {
+                0 => "To Do",
+                1 => "In Progress",
+                2 => "In Review",
+                3 => "Completed",
+                _ => "To do"
+            };
+
+            var section = _sectionRepository.GetAll(true)
+                .Where(sc => sc.Name.EqualsInvariant(requestDto.SectionName) && sc.WorkspaceId == dragTodo.WorkspaceId)
+                .FirstOrDefault();
+
+            Guard.ThrowIfNull<NotFoundException>(dragTodo, "Cannot find Todo");
+
+            bool isTheSameSection = dragTodo.Section.Name.EqualsInvariant(requestDto.SectionName);
+
+            if (isTheSameSection)
+            {
+                var sortTodos = new List<Todo>();
+
+                if (dragTodo.Priority < requestDto.Priority)
+                {
+
+                    sortTodos = _todoRepository.GetAll()
+                        .Where(td => td.Priority <= requestDto.Priority && 
+                            td.Priority > dragTodo.Priority && 
+                            td.Id != requestDto.TodoId &&
+                            td.Section.Name.EqualsInvariant(requestDto.SectionName))
+                        .ToList();
+
+                    foreach (var todo in sortTodos)
+                    {
+                        todo.Priority -= 1;
+                    }
+                    dragTodo.Priority = requestDto.Priority;
+                }
+                else
+                {
+                    sortTodos = _todoRepository.GetAll()
+                        .Where(td => td.Priority >= requestDto.Priority && 
+                            td.Priority < dragTodo.Priority && 
+                            td.Id != requestDto.TodoId &&
+                            td.Section.Name.EqualsInvariant(requestDto.SectionName))
+                        .ToList();
+
+                    foreach (var todo in sortTodos)
+                    {
+                        todo.Priority += 1;
+                    }
+                    dragTodo.Priority = requestDto.Priority;
+                }
+
+                _todoRepository.Update(dragTodo);
+                _todoRepository.UpdateRange(sortTodos);
+                scope.Complete();
+
+                return;
+            }
+
+            // Is The Same Column = False
+
+            var dragTodoList = _todoRepository.GetAll()
+               .Where(td => td.TodoDate.Date == dragTodo.TodoDate.Date && td.Priority > dragTodo.Priority)
+               .ToList();
+
+            var dropTodo = _todoRepository.GetAll()
+                .Where(td => td.SectionId == section.Id
+                    && td.Priority >= requestDto.Priority)
+                .ToList();
+
+            foreach (var todo in dragTodoList)
+            {
+                todo.Priority -= 1;
+            }
+
+            foreach (var todo in dropTodo)
+            {
+                todo.Priority += 1;
+            }
+
+
+            dragTodo.SectionId = section.Id;
+            dragTodo.Priority = requestDto.Priority;
+
+            _todoRepository.Update(dragTodo);
+            _todoRepository.UpdateRange(dropTodo);
+            _todoRepository.UpdateRange(dragTodoList);
+
+            scope.SaveChanges();
+            scope.Complete();
         }
 
         public GetTodoListInWorkspaceResponseDto GetTodoListInWorkspace(GetTodoListInWorkspaceRequestDto request)
@@ -126,42 +220,21 @@ namespace TDL.Services.Services.v1
             };
         }
 
-        //public void CreateTodoInWorkspace(CreateTodoWorkspaceRequestDto request)
-        //{
-        //    using var scope = _uow.Provide();
-
-        //    var workspace = _workspaceRepository.Get(request.WorkspaceId);
-
-        //    Guard.ThrowIfNull<NotFoundException>(workspace, nameof(Workspace));
-
-        //    var todo = new Todo
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        Description = request.Description,
-        //        RemindedAt = request.RemindedAt,
-        //        Title = request.Title,
-        //        Status = request.Status,
-        //    };
-
-        //    _todoRepository.Add(todo);
-
-        //    scope.Complete();
-        //}
-
-        public IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName)
+        public IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName, Guid userId)
         {
             using var scope = _uow.Provide();
 
-            var workspaces = _userWorkspaceRepository.GetAll(true)
-                .Include(uw => uw.User)
-                .Include(uw => uw.Workspace)
-                .Where(uw => uw.User.UserName.EqualsInvariant(userName))
+            var workspaces = _workspaceRepository.GetAll(true)
+                .Include(x => x.UserWorkspaces)
+                .Where(x => x.CreatedBy.EqualsInvariant(userName) ||
+                    x.UserWorkspaces.FirstOrDefault(uws => uws.WorkspaceId == x.Id) != null)
                 .Select(uw => new GetWorkspaceResponseDto
                 {
-                    Id = uw.WorkspaceId,
-                    Description = uw.Workspace.Description,
-                    Name = uw.Workspace.Name,
-                }).ToList();
+                    Id = uw.Id,
+                    Description = uw.Description,
+                    Name = uw.Name,
+                })
+                .ToList();
 
             return workspaces;   
         }
@@ -249,17 +322,26 @@ namespace TDL.Services.Services.v1
             var workspace = _workspaceRepository.GetAll()
                 .FirstOrDefault(ws => ws.Id == request.WorkspaceId);
 
-            var sectionsList = _sectionRepository.GetAll(true)
-                .Where(se => se.WorkspaceId == workspace.Id)
-                .ToList();
+            var sectionName = request.Position switch {
+                0 => "To do",
+                1 => "In Progress",
+                2 => "In Review",
+                3 => "Completed",
+                _ => "To do",
+            };
+
+            var section = _sectionRepository.GetAll(true)
+                .FirstOrDefault(se => se.WorkspaceId == workspace.Id && se.Name.EqualsInvariant(sectionName));
+                
 
             List<int> maxPriority = _todoRepository.GetAll()
                 .Where(td => td.WorkspaceId == request.WorkspaceId)
+                .Where(td => td.SectionId == section.Id)
                 .Select(x => x.Priority)
                 .ToList();
 
             Guard.ThrowIfNull<NotFoundException>(workspace, $"Cannot find workspace by Id: {request.WorkspaceId}");
-            Guard.ThrowByCondition<NotFoundException>(!sectionsList.Any(), $"Cannot find sections by WorkspaceId: {request.WorkspaceId}");
+            Guard.ThrowIfNull<NotFoundException>(section, $"Cannot find sections by WorkspaceId: {request.WorkspaceId}");
 
             Todo newTodo = new Todo
             {
@@ -267,8 +349,7 @@ namespace TDL.Services.Services.v1
                 WorkspaceId = workspace.Id,
                 Title = request.Title,
                 Description = request.Description,
-                //SectionId = request.SectionId,
-                SectionId = sectionsList[0].Id,
+                SectionId = section.Id,
                 IsArchieved = false,
                 IsCompleted = false,
                 Priority = maxPriority.Any() ? maxPriority.Max() + 1 : 1,
@@ -350,6 +431,7 @@ namespace TDL.Services.Services.v1
             return _todoRepository.GetAll(true)
                 .Where(td => td.WorkspaceId == id)
                 .Where(td => td.Section.Name.EqualsInvariant(sectionName))
+                .OrderBy(x => x.Priority)
                 .ToList();
         }
 

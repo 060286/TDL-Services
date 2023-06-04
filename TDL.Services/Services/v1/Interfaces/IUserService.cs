@@ -9,7 +9,7 @@ namespace TDL.Services.Services.v1.Interfaces
     {
         void RegisterAccount(RegisterAccountRequestDto request);
 
-        IList<UserInfoReponseDto> SearchUserInfo(string keyword);
+        IList<UserInfoReponseDto> SearchUserInfo(string keyword, Guid userId);
 
         UserLoginResponseDto LoginAndGetUserToken(UserLoginRequestDto request);
 

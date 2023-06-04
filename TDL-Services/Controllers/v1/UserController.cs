@@ -39,7 +39,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("search-user")]
         public IActionResult SearchUser([FromQuery] string keyword)
         {
-            var response = _userService.SearchUserInfo(keyword);
+            var response = _userService.SearchUserInfo(keyword, UserId);
 
             return Ok(response);
         }

@@ -180,13 +180,14 @@ namespace TDL.Services.Services.v1
             scope.Complete();
         }
 
-        public IList<UserInfoReponseDto> SearchUserInfo(string keyword)
+        public IList<UserInfoReponseDto> SearchUserInfo(string keyword, Guid userId)
         {
             using var scope = _uowProvider.Provide();
 
             var result = _userRepository.GetAll(true)
                 .Where(us => string.IsNullOrEmpty(keyword) || us.UserName.ContainInvariant(keyword) ||
                        us.Email.ContainInvariant(keyword) || us.PhoneNumber.ContainInvariant(keyword))
+                .Where(us => us.Id != userId)
                 .Select(re => new UserInfoReponseDto
                 {
                     Id = re.Id,

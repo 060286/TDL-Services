@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TDL.Domain.Entities;
 using TDL.Services.Dto.Workspace;
 
 namespace TDL.Services.Services.v1.Interfaces
@@ -11,7 +10,7 @@ namespace TDL.Services.Services.v1.Interfaces
 
         //void CreateTodoInWorkspace(CreateTodoWorkspaceRequestDto request);
 
-        IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName);
+        IList<GetWorkspaceResponseDto> GetAllWorkspaces(string userName, Guid userId);
 
         GetWorkspaceDetailResponseDto GetWorkspaceById(Guid id, string userName);
 
@@ -21,6 +20,6 @@ namespace TDL.Services.Services.v1.Interfaces
 
         AddTodoInWorkspaceResponseDto AddTodoInWorkspace(AddTodoIntoWorkspaceRequestDto request);
 
-        void DragDropTodoInWorkspace();
+        void DragDropTodoInWorkspace(DragDropTodoInWorkspaceRequestDto requestDto);
     }
 }
