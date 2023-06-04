@@ -663,8 +663,9 @@ namespace TDL.Services.Services.v1
                     IsCompleted = td.IsCompleted,
                     Description = td.Description,
                     RemindedAt = td.RemindedAt,
-                    SubTasks = _subtaskRepository.GetAll(true)
-                        .Where(st => st.TodoId == td.Id).Select(st => new SubTaskResponse()
+                    Tag  = _colorService.PriorityColor(td.Tag),
+                    SubTasks = td.SubTasks
+                        .Select(st => new SubTaskResponse()
                         {
                             Id = st.Id,
                             IsCompleted = st.IsCompleted,

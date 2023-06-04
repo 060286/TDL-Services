@@ -278,15 +278,19 @@ namespace TDL.Services.Services.v1
             var actor = _userRepository.GetAll(true)
                 .FirstOrDefault(us => us.Id == userId);
 
+            var workspace = _workspaceRepository.GetAll(true)
+                .FirstOrDefault(ws => ws.Id == requestDto.WorkspaceId);
+
             Guard.ThrowIfNull<NotFoundException>(owner, "Cannot found owner");
-            Guard.ThrowIfNull<NotFoundException>(actor, "Cannot found actir");
+            Guard.ThrowIfNull<NotFoundException>(actor, "Cannot found actor");
+            Guard.ThrowIfNull<NotFoundException>(workspace, "Cannot found Workspace");
 
             var notification = new Notification
             {
                 Id = Guid.NewGuid(),
                 OwnerId = owner.Id,
                 ActorId = actor.Id,
-                Content = $"{actor.FirstName} {actor.LastName} added you into workspace",
+                Content = $"{actor.FirstName} {actor.LastName} added you into workspace ${workspace.Name}",
                 IsViewed = false,
                 Title = "Add User Into Workspace",
             };

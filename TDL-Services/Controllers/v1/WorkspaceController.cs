@@ -65,13 +65,6 @@ namespace TDL.APIs.Controllers.v1
             return Ok(result);
         }
 
-        [HttpGet("{workspaceId}/todos-in-workspace")]
-        public IActionResult GetTodosInWorkspaceById(Guid workspaceId)
-        {
-
-
-            return Ok();
-        }
 
         [HttpPost("add-user-workspace")]
         [AllowAnonymous]
