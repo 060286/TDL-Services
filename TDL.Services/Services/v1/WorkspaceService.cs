@@ -57,6 +57,32 @@ namespace TDL.Services.Services.v1
 
         #region implement method
 
+        public AssignUserResponseDto AssignUser(AssignUserRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            var todo = _todoRepository.GetAll()
+                .FirstOrDefault(td => td.Id == request.TodoId);
+
+            var user = _userRepository.GetAll(true)
+                .FirstOrDefault(user => user.Email.EqualsInvariant(request.Email));
+
+            Guard.ThrowIfNull<NotFoundException>(todo, "Not found todo");
+            Guard.ThrowIfNull<NotFoundException>(user, "Not found user");
+
+            todo.AssginmentUserId = user.Id;
+
+            _todoRepository.Update(todo);
+            scope.Complete();
+
+            return new AssignUserResponseDto
+            {
+                Email = user.Email,
+                Img = user.Img,
+                UserName = user.UserName
+            };
+        }
+
         public void DragDropTodoInWorkspace(DragDropTodoInWorkspaceRequestDto requestDto)
         {
             using var scope = _uow.Provide();
@@ -227,7 +253,7 @@ namespace TDL.Services.Services.v1
             var workspaces = _workspaceRepository.GetAll(true)
                 .Include(x => x.UserWorkspaces)
                 .Where(x => x.CreatedBy.EqualsInvariant(userName) ||
-                    x.UserWorkspaces.FirstOrDefault(uws => uws.WorkspaceId == x.Id) != null)
+                    x.UserWorkspaces.FirstOrDefault(uws => uws.WorkspaceId == x.Id && uws.UserId == userId) != null)
                 .Select(uw => new GetWorkspaceResponseDto
                 {
                     Id = uw.Id,
@@ -437,6 +463,27 @@ namespace TDL.Services.Services.v1
                 .Where(td => td.Section.Name.EqualsInvariant(sectionName))
                 .OrderBy(x => x.Priority)
                 .ToList();
+        }
+
+        public IList<SearchUserInWorkspaceResponseDto> SearchUserInWorkspace(SearchUserInWorkspaceRequestDto request)
+        {
+            using var scope = _uow.Provide();
+
+            var response = _userWorkspaceRepository.GetAll(true)
+                .Include(ws => ws.User)
+                .Where(ws => ws.WorkspaceId == request.WorkspaceId)
+                .Where(ws => string.IsNullOrEmpty(request.Keyword) ||
+                    ws.User.Email.ContainInvariant(request.Keyword) ||
+                    ws.User.UserName.ContainInvariant(request.Keyword))
+                .Select(ws => new SearchUserInWorkspaceResponseDto
+                {
+                    UserName = ws.User.UserName,
+                    Email = ws.User.Email,
+                    Id = ws.User.Id,
+                    Img = ws.User.Img
+                }).ToList();
+
+            return response;
         }
 
         #endregion
