@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using TDL.Services.Dto.User;
 using TDL.Services.Services.v1.Interfaces;
 
@@ -90,6 +91,14 @@ namespace TDL.APIs.Controllers.v1
             var response = _userService.GetNotifications(UserId);
 
             return Ok(response);
+        }
+
+        [HttpPut("{id}/update-notify-status")]
+        public IActionResult UpdateNotifyStatus(Guid id)
+        {
+            _userService.UpdateNotifyById(id);
+
+            return Ok();
         }
     }
 }

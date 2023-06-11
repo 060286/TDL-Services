@@ -192,6 +192,10 @@ namespace TDL.Services.Services.v1
                     _todoCategoryRepository.Add(newTodoCategory);
                     scope.SaveChanges();
                 }
+                else
+                {
+                    categoryId = result.Id;
+                }
             }
 
             // Get max priority 
@@ -698,7 +702,8 @@ namespace TDL.Services.Services.v1
                             Email = res.Email,
                             Img = res.Img,
                             UserName = res.UserName
-                        }).FirstOrDefault()
+                        }).FirstOrDefault(),
+                    TodoDate = td.TodoDate
                 }).FirstOrDefault(td => td.Id == todoId);
 
             return response;

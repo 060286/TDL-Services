@@ -1,7 +1,8 @@
-﻿using DocumentFormat.OpenXml.VariantTypes;
+﻿
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -57,20 +58,37 @@ namespace TDL.Services.Services.v1
 
         #region implement method
 
-        public AssignUserResponseDto AssignUser(AssignUserRequestDto request)
+        public AssignUserResponseDto AssignUser(AssignUserRequestDto request, string userName)
         {
             using var scope = _uow.Provide();
 
             var todo = _todoRepository.GetAll()
+                .Include(td => td.Workspace)
                 .FirstOrDefault(td => td.Id == request.TodoId);
 
             var user = _userRepository.GetAll(true)
                 .FirstOrDefault(user => user.Email.EqualsInvariant(request.Email));
 
+            var users = _userWorkspaceRepository.GetAll(true)
+                .Include(uw => uw.User)
+                .Where(uw => uw.WorkspaceId == todo.WorkspaceId)
+                .Select(uw => uw.User.UserName)
+                .ToList();
+
             Guard.ThrowIfNull<NotFoundException>(todo, "Not found todo");
             Guard.ThrowIfNull<NotFoundException>(user, "Not found user");
 
             todo.AssginmentUserId = user.Id;
+            string notifyContent = $"{userName} was assign todo : {FormatTitle(todo.Title)} for {user.UserName} in workspace: {todo.Workspace.Name}";
+
+            _hubContext.Clients.Users(users).SendNotificationWorkspace(new NotificationResponseDto
+            {
+                Content = notifyContent,
+                Id = Guid.NewGuid(),
+                Type = "AssignNotify"
+            });
+
+            SaveNotifyAndSendNotify(users, userName, notifyContent);
 
             _todoRepository.Update(todo);
             scope.Complete();
@@ -81,6 +99,39 @@ namespace TDL.Services.Services.v1
                 Img = user.Img,
                 UserName = user.UserName
             };
+        }
+
+        private void SaveNotifyAndSendNotify(IList<string> users, string actorName, string content)
+        {
+            var actor = _userRepository.GetAll(true)
+                    .FirstOrDefault(us => us.UserName.EqualsInvariant(actorName));
+
+            foreach (var user in users)
+            {
+                var owner = _userRepository.GetAll(true)
+                    .FirstOrDefault(us => us.UserName.EqualsInvariant(user));
+
+                var notify = new Notification
+                {
+                    ActorId = actor.Id,
+                    OwnerId = owner.Id,
+                    Id = Guid.NewGuid(),
+                    Content = content,
+                    Title = "Assign Todo",
+                };
+
+                _notificationRepository.Add(notify);
+            }
+        }
+
+        private string FormatTitle(string title)
+        {
+            if(title.Length < 15)
+            {
+                return $"{title}...";
+            }
+
+            return title.Substring(0, Math.Min(title.Length, 15)) + "...";
         }
 
         public void DragDropTodoInWorkspace(DragDropTodoInWorkspaceRequestDto requestDto)
@@ -271,7 +322,7 @@ namespace TDL.Services.Services.v1
 
             var response = _workspaceRepository.GetAll(true)
                 .Include(ws => ws.UserWorkspaces)
-                .Where(ws => ws.Id == id || ws.CreatedBy.EqualsInvariant(userName))
+                .Where(ws => ws.Id == id) //|| ws.CreatedBy.EqualsInvariant(userName)
                 .Select(ws => new GetWorkspaceDetailResponseDto
                 {
                     Id = ws.Id,
@@ -288,8 +339,21 @@ namespace TDL.Services.Services.v1
                         }).ToList()
                 })
                 .FirstOrDefault();
-
+            
             Guard.ThrowIfNull<NotFoundException>(response, $"Not found {nameof(Workspace)}");
+            Guard.ThrowIfNull<NotFoundException>(response.Users, $"Not found users {nameof(Workspace)}");
+
+            var usersAssigned = _userWorkspaceRepository.GetAll(true)
+                .Where(ws => ws.WorkspaceId == response.Id)
+                .Where(ws => ws.UserId != response.Users[0].Id)
+                .Select(us => new UserInfoDetail
+                {
+                    Id = us.UserId,
+                    Img = us.User.Img, 
+                    UserName = $"{us.User.FirstName} {us.User.LastName}"
+                }).ToList();
+
+            response.Users.ToList().AddRange(usersAssigned);
 
             return response;
         }
@@ -384,6 +448,7 @@ namespace TDL.Services.Services.v1
                 IsCompleted = false,
                 Priority = maxPriority.Any() ? maxPriority.Max() + 1 : 1,
                 RemindedAt = null,
+                TodoDate = request.AddDate,
                 Tag = TagDefinition.Nothing.ToString(),
             };
 

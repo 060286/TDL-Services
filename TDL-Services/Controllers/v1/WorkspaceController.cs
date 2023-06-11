@@ -124,7 +124,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpPut("assign-user")]
         public IActionResult AssignUser([FromBody] AssignUserRequestDto request)
         {
-            var result = _workspaceService.AssignUser(request);
+            var result = _workspaceService.AssignUser(request, UserName);
 
             return Ok(result);
         }

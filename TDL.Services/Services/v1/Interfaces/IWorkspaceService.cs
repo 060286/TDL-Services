@@ -22,7 +22,7 @@ namespace TDL.Services.Services.v1.Interfaces
 
         void DragDropTodoInWorkspace(DragDropTodoInWorkspaceRequestDto requestDto);
 
-        AssignUserResponseDto AssignUser(AssignUserRequestDto request);
+        AssignUserResponseDto AssignUser(AssignUserRequestDto request, string userName);
 
         IList<SearchUserInWorkspaceResponseDto> SearchUserInWorkspace(SearchUserInWorkspaceRequestDto request);
     }
