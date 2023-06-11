@@ -19,7 +19,7 @@ namespace TDL.Services.Services.v1.Interfaces
 
         IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime);
 
-        IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword);
+        IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword, string userName);
 
         string ChangeCategoryTitle(ChangeTodoCategoryRequestDto request, string userName);
 

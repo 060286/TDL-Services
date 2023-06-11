@@ -114,7 +114,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpPut("{id}/remind-at")]
         public IActionResult RemindTodoAt([FromBody] RemindAtRequest request, Guid id)
         {
-            _todoService.UpdateRemindAt(remindAt: request.RemindAt, todoId: id);
+            _todoService.UpdateRemindAt(remindAt: request.RemindAt.Value.AddDays(1), todoId: id);
 
             return Ok();
         }

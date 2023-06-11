@@ -21,6 +21,8 @@ namespace TDL.Services.Dto.MyDayPage
         public IList<SubTaskResponse> SubTasks { get; set; }
 
         public ColorDto Tag { get; set; }
+
+        public AssignUserInfo AssignUserInfo { get; set; }
     }
 
     public class SubTaskResponse
@@ -30,5 +32,14 @@ namespace TDL.Services.Dto.MyDayPage
         public string Name { get; set; }
 
         public bool IsCompleted { get; set; }
+    }
+
+    public class AssignUserInfo
+    {
+        public string UserName { get; set; }
+
+        public string Email { get; set; }
+
+        public string Img { get; set; }
     }
 }

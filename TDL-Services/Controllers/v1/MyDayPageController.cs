@@ -76,7 +76,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("todo-suggestions-list")]
         public IActionResult GetSuggestTodoList(string keyword)
         {
-            var response = _todoService.GetSuggestTodoList(keyword);
+            var response = _todoService.GetSuggestTodoList(keyword, UserName);
 
             return Ok(response);
         }

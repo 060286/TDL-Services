@@ -21,5 +21,9 @@ namespace TDL.Services.Services.v1.Interfaces
         AddTodoInWorkspaceResponseDto AddTodoInWorkspace(AddTodoIntoWorkspaceRequestDto request);
 
         void DragDropTodoInWorkspace(DragDropTodoInWorkspaceRequestDto requestDto);
+
+        AssignUserResponseDto AssignUser(AssignUserRequestDto request, string userName);
+
+        IList<SearchUserInWorkspaceResponseDto> SearchUserInWorkspace(SearchUserInWorkspaceRequestDto request);
     }
 }

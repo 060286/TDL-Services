@@ -39,7 +39,15 @@ namespace TDL.APIs.Controllers.v1
             await _hubContext1.Clients.User(requestDto.ConnectionId).SendAsync("tam test");
             //await _hubContext.Clients.User("tamle.dev1").PostNotify(message);
             return Ok();
-        }    
+        }
+
+        [HttpPost("search-user-workspace")]
+        public IActionResult SearchUserInWorkspace([FromBody] SearchUserInWorkspaceRequestDto request)
+        {
+            var result = _workspaceService.SearchUserInWorkspace(request);
+
+            return Ok(result);
+        }
 
         [HttpPost("workspace")]
         public IActionResult CreateWorkspace([FromBody] CreateWorkspaceRequestDto request)
@@ -111,6 +119,14 @@ namespace TDL.APIs.Controllers.v1
             _workspaceService.DragDropTodoInWorkspace(requestDto);
 
             return Ok();
+        }
+
+        [HttpPut("assign-user")]
+        public IActionResult AssignUser([FromBody] AssignUserRequestDto request)
+        {
+            var result = _workspaceService.AssignUser(request, UserName);
+
+            return Ok(result);
         }
     }
 

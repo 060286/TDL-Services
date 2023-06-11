@@ -1,13 +1,39 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
 using TDL.Services.SignalR.Hubs.Interfaces;
 
 namespace TDL.Services.SignalR.Hubs
 {
     public class NotificationHub : Hub<INotificationClient>
     {
+
+        //public string GetWorkspaceId(HubConnectionContext connection)
+        //{
+        //    var workspaceId = connection.GetHttpContext().Request.Query["workspaceId"];
+
+        //    return workspaceId;
+        //}
+
+        //private const string EbgIdQueryParam = "";
+
+        //public override Task OnConnectedAsync()
+        //{
+        //    var httpContext = Context.GetHttpContext();
+
+        //    //Guard.ThrowByCondition<BusinessLogicException>(!httpContext.Request.Query.ContainsKey(EbgIdQueryParam), "Not found");
+
+        //    //var ebgId = httpContext.Request.Query["WorkspaceId"].ToString();
+
+        //    var workspaceId = httpContext.Request.Query["workspaceId"].ToString();
+
+        //    if(!string.IsNullOrEmpty(workspaceId))
+        //    {
+        //        Groups.AddToGroupAsync(Context.ConnectionId, workspaceId);
+        //    }
+
+        //    return base.OnConnectedAsync();
+        //}
+
         //private static readonly Dictionary<string, string> UserConnections = new Dictionary<string, string>();
 
         //public override Task OnConnectedAsync()
@@ -27,17 +53,7 @@ namespace TDL.Services.SignalR.Hubs
         //    return base.OnConnectedAsync();
         //}
 
-        //public override Task OnDisconnectedAsync(Exception exception)
-        //{
-        //    string userId = Context.UserIdentifier;
 
-        //    if (UserConnections.ContainsKey(userId))
-        //    {
-        //        UserConnections.Remove(userId);
-        //    }
-
-        //    return base.OnDisconnectedAsync(exception);
-        //}
 
         //public async Task SendMessage(string userId, string message)
         //{

@@ -9,5 +9,7 @@ namespace TDL.Services.SignalR.Hubs.Interfaces
         Task SendNotification(object data);
 
         Task PostNotify(object data);
+
+        Task SendNotificationWorkspace(object data);
     }
 }

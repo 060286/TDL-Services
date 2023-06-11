@@ -29,13 +29,16 @@ namespace TDL.Services.Services.v1
         private IMapper _mapper;
         private readonly IRepository<Tag> _tagRepository;
         private readonly IColorService _colorService;
+        private readonly IRepository<User> _userRepository;
+
         public TodoService(IRepository<Todo> todoRepository,
             IUnitOfWorkProvider uow,
             IRepository<TodoCategory> todoCategoryRepository,
             IRepository<SubTask> subtaskRepository,
             IMapper mapper,
             IRepository<Tag> tagRepository,
-            IColorService colorService)
+            IColorService colorService,
+            IRepository<User> userRepository)
         {
             _todoRepository = todoRepository;
             _uow = uow;
@@ -44,6 +47,7 @@ namespace TDL.Services.Services.v1
             _mapper = mapper;
             _tagRepository = tagRepository;
             _colorService = colorService;
+            _userRepository = userRepository;
         }
 
         #endregion constructor
@@ -168,10 +172,30 @@ namespace TDL.Services.Services.v1
 
             if (!request.CategoryId.HasValue)
             {
-                categoryId = _todoCategoryRepository.GetAll(true)
+                var result = _todoCategoryRepository.GetAll(true)
                     .FirstOrDefault(tdc => tdc.Title.EqualsInvariant(categoryDefault)
-                                           && tdc.CreatedBy.EqualsInvariant(userName))!
-                    .Id;
+                                           && tdc.CreatedBy.EqualsInvariant(userName));
+
+                if(result == null)
+                {
+                    //Create default 
+
+                    categoryId = Guid.NewGuid();
+
+                    TodoCategory newTodoCategory = new TodoCategory
+                    {
+                        Id = (Guid)categoryId,
+                        Description = categoryDefault,
+                        Title = categoryDefault,
+                    };
+
+                    _todoCategoryRepository.Add(newTodoCategory);
+                    scope.SaveChanges();
+                }
+                else
+                {
+                    categoryId = result.Id;
+                }
             }
 
             // Get max priority 
@@ -206,13 +230,13 @@ namespace TDL.Services.Services.v1
                 FileName = response.FileName,
                 Status = response.Status,
                 IsArchieved = response.IsArchieved,
-                // SubTasks = response.SubTasks?.Select(st => new SubTaskResponse()
-                // {
-                //     IsCompleted = st.IsCompleted,
-                //     Id = st.Id,
-                //     Name = st.Title
-                // }).ToList(),
-                SubTasks = new List<SubTaskResponse>(),
+                SubTasks = response.SubTasks?.Select(st => new SubTaskResponse()
+                {
+                    IsCompleted = st.IsCompleted,
+                    Id = st.Id,
+                    Name = st.Title
+                }).ToList(),
+                //SubTasks = new List<SubTaskResponse>(),
                 CategoryName = _todoCategoryRepository.GetAll(true)
                     .FirstOrDefault(x => x.Id == categoryId).Title, // TodoCategory.Title is null here
             };
@@ -227,7 +251,7 @@ namespace TDL.Services.Services.v1
             return response;
         }
 
-        public IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword)
+        public IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword, string userName)
         {
             using var scope = _uow.Provide();
 
@@ -238,6 +262,7 @@ namespace TDL.Services.Services.v1
                 .Include(x => x.TodoCategory)
                 .Where(td => td.TodoDate > sevenDaysBefore && td.TodoDate != now)
                 .Where(td => string.IsNullOrEmpty(keyword) || td.Title.ContainInvariant(keyword))
+                .Where(td => td.CreatedBy.EqualsInvariant(userName))
                 .Take(20)
                 .OrderByDescending(td => td.CreatedAt)
                 .Select(td => new SuggestionTodoItemResponse
@@ -663,14 +688,22 @@ namespace TDL.Services.Services.v1
                     IsCompleted = td.IsCompleted,
                     Description = td.Description,
                     RemindedAt = td.RemindedAt,
-                    Tag  = _colorService.PriorityColor(td.Tag),
+                    Tag = _colorService.PriorityColor(td.Tag),
                     SubTasks = td.SubTasks
                         .Select(st => new SubTaskResponse()
                         {
                             Id = st.Id,
                             IsCompleted = st.IsCompleted,
                             Name = st.Title
-                        }).ToList()
+                        }).ToList(),
+                    AssignUserInfo = _userRepository.GetAll(true)
+                        .Where(us => us.Id == td.AssginmentUserId).Select(res => new AssignUserInfo
+                        {
+                            Email = res.Email,
+                            Img = res.Img,
+                            UserName = res.UserName
+                        }).FirstOrDefault(),
+                    TodoDate = td.TodoDate
                 }).FirstOrDefault(td => td.Id == todoId);
 
             return response;

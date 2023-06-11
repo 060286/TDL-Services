@@ -35,6 +35,8 @@ namespace TDL.Domain.Entities
 
         public Guid? SectionId { get; set; }
 
+        public Guid? AssginmentUserId { get; set; }
+
         // Tag 
         public string Tag { get; set; } = TagDefinition.Priority.ToString();
 
@@ -45,6 +47,7 @@ namespace TDL.Domain.Entities
         public virtual IList<SubTask> SubTasks { get; set; }
 
         public virtual IList<Tag> Tags { get; set; }
+
         public virtual Workspace Workspace { get; set; }
 
         public virtual Section Section { get; set; }

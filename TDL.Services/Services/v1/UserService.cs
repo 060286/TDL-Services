@@ -1,5 +1,4 @@
-﻿using AutoMapper.QueryableExtensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -45,19 +44,48 @@ namespace TDL.Services.Services.v1
 
         #endregion
 
-        public IList<GetNotificationResponseDto> GetNotifications(Guid userId)
+        public void UpdateNotifyById(Guid notifyId)
         {
             using var scope = _uowProvider.Provide();
 
-            var notifications = _notificationRepository.GetAll(true)
+            var notification = _notificationRepository.GetAll()
+                .FirstOrDefault(nf => nf.Id == notifyId);
+
+            Guard.ThrowIfNull<NotFoundException>(notification, $"Cannot find notify by Id: {notifyId}");
+
+            notification.IsViewed = true;
+            _notificationRepository.Update(notification);
+
+            scope.Complete();
+        }
+
+        public NotificatioWrapperResponseDto GetNotifications(Guid userId)
+        {
+            using var scope = _uowProvider.Provide();
+
+            var notifications = _notificationRepository.GetAll(true)    
                 .Where(nf => nf.OwnerId == userId)
+                .OrderByDescending(nf => nf.CreatedAt)
                 .Select(nf => new GetNotificationResponseDto
                 {
                     Id = nf.Id,
-                    Content = nf.Content
+                    Content = nf.Content,
+                    IsRead = nf.IsViewed,
+                    Email = nf.Owner.Email,
+                    FullName = $"{nf.Owner.FirstName} {nf.Owner.LastName}",
+                    Time = (DateTime)nf.CreatedAt,
+                    Type = nf.Title,
+                    Url = string.Empty
                 }).ToList();
 
-            return notifications;
+            var notViewedCount = _notificationRepository.GetAll(true)
+                .Where(nf => nf.OwnerId == userId && !nf.IsViewed).Count();
+
+            return new NotificatioWrapperResponseDto
+            {
+                Notifications = notifications,
+                NotViewedCount = notViewedCount
+            };
         }
 
         public void ResertPassword(ResetPasswordRequestDto request)
@@ -151,8 +179,6 @@ namespace TDL.Services.Services.v1
 
             bool isCorrectPassword = request.Password.EqualsInvariant(request.ConfirmedPassword);
             Guid userId = Guid.NewGuid();
-            Guid categoryId = Guid.NewGuid();
-            string defaultCategory = "Personal";
 
             Guard.ThrowByCondition<BusinessLogicException>(!isCorrectPassword, "Please input correct password!");
 
@@ -167,15 +193,7 @@ namespace TDL.Services.Services.v1
                 Password = request.Password,
             };
 
-            TodoCategory newTodoCategory = new TodoCategory
-            {
-                Id = categoryId,
-                Description = defaultCategory,
-                Title = defaultCategory,
-            };
-
             _userRepository.Add(newUser);
-            _todoCategoryRepository.Add(newTodoCategory);
 
             scope.Complete();
         }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using TDL.Services.Dto.User;
-using TDL.Services.Dto.Workspace;
 
 namespace TDL.Services.Services.v1.Interfaces
 {
@@ -21,6 +20,8 @@ namespace TDL.Services.Services.v1.Interfaces
 
         void ResertPassword(ResetPasswordRequestDto request);
 
-        IList<GetNotificationResponseDto> GetNotifications(Guid userId);
+        NotificatioWrapperResponseDto GetNotifications(Guid userId);
+
+        void UpdateNotifyById(Guid notifyId);
     }
 }
