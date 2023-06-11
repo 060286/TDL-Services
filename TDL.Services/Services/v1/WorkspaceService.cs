@@ -494,7 +494,7 @@ namespace TDL.Services.Services.v1
                 new Section
                 {
                     Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
+                    Name = SectionNameConstant.InProgress,
                     Priority = 1,
                     Description = $"Desc of {SectionNameConstant.InProgress}",
                     WorkspaceId = workspaceId,
@@ -502,7 +502,7 @@ namespace TDL.Services.Services.v1
                 new Section
                 {
                     Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
+                    Name = SectionNameConstant.InReview,
                     Priority = 1,
                     Description = $"Desc of {SectionNameConstant.InReview}",
                     WorkspaceId = workspaceId,
@@ -510,7 +510,8 @@ namespace TDL.Services.Services.v1
                 new Section
                 {
                     Id = Guid.NewGuid(),
-                    Name = SectionNameConstant.Todo,
+                    Name = SectionNameConstant.Completed
+                    ,
                     Priority = 1,
                     Description = $"Desc of {SectionNameConstant.Completed}",
                     WorkspaceId = workspaceId,
