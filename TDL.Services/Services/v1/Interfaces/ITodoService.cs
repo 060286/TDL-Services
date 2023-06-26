@@ -17,7 +17,7 @@ namespace TDL.Services.Services.v1.Interfaces
 
         IList<Todo> GetAllTodo();
 
-        IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime);
+        IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime, string userName);
 
         IList<SuggestionTodoItemResponse> GetSuggestTodoList(string keyword, string userName);
 

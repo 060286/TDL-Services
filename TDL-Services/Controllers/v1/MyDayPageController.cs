@@ -68,7 +68,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("todo-of-date")]
         public IActionResult GetListTodoByDateTime([FromQuery] DateTime dateTime)
         {
-            IList<TodoOfDateResponseDto> response = _todoService.GetTodoOfDate(dateTime);
+            IList<TodoOfDateResponseDto> response = _todoService.GetTodoOfDate(dateTime, UserName);
 
             return Ok(response);
         }

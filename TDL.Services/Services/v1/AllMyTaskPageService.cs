@@ -8,6 +8,7 @@ using TDL.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using TDL.Services.Dto.AllMyTask;
 using TDL.Services.Dto.MyDayPage;
 using TDL.Services.Services.v1.Interfaces;
+using TDL.Infrastructure.Extensions;
 
 namespace TDL.Services.Services.v1
 {
@@ -29,7 +30,7 @@ namespace TDL.Services.Services.v1
             _colorService = colorService;
         }
 
-        public AllMyTaskListResponseDto GetAllTask(DateTime datetime)
+        public AllMyTaskListResponseDto GetAllTask(DateTime datetime, string userName)
         {
             using var scope = _uow.Provide();
 
@@ -39,7 +40,7 @@ namespace TDL.Services.Services.v1
 
 
             var todayTask = _todoRepository.GetAll(true)
-                .Where(td => td.TodoDate.Date == datetime.Date)
+                .Where(td => td.TodoDate.Date == datetime.Date && td.CreatedBy.EqualsInvariant(userName))
                 .Select(td => new AllTaskItemResponseDto()
                 {
                     Id = td.Id,
@@ -64,7 +65,7 @@ namespace TDL.Services.Services.v1
                 .ToList();
 
             var tomorrowTask = _todoRepository.GetAll(true)
-                .Where(td => td.TodoDate.Date == nextDay.Date)
+                .Where(td => td.TodoDate.Date == nextDay.Date && td.CreatedBy.EqualsInvariant(userName))
                 .Select(td => new AllTaskItemResponseDto()
                 {
                     Id = td.Id,
@@ -91,6 +92,7 @@ namespace TDL.Services.Services.v1
             var upCommingDayTask = _todoRepository.GetAll(true)
                 .Where(td => td.TodoDate.Date > firstUpcomingDay.Date && 
                              td.TodoDate.Date < lastUpcomingDay.Date)
+                .Where(td => td.CreatedBy.EqualsInvariant(userName))
                 .Select(td => new AllTaskItemResponseDto()
                 {
                     Id = td.Id,

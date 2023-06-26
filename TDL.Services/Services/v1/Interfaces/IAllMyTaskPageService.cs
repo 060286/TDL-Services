@@ -5,6 +5,6 @@ namespace TDL.Services.Services.v1.Interfaces
 {
     public interface IAllMyTaskPageService
     {
-        AllMyTaskListResponseDto GetAllTask(DateTime datetime);
+        AllMyTaskListResponseDto GetAllTask(DateTime datetime, string userName);
     }
 }

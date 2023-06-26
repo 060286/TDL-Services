@@ -39,7 +39,7 @@ namespace TDL.Services.Services.v1
             IRepository<Tag> tagRepository,
             IColorService colorService,
             IRepository<User> userRepository)
-        {
+        {yo
             _todoRepository = todoRepository;
             _uow = uow;
             _todoCategoryRepository = todoCategoryRepository;
@@ -709,7 +709,7 @@ namespace TDL.Services.Services.v1
             return response;
         }
 
-        public IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime)
+        public IList<TodoOfDateResponseDto> GetTodoOfDate(DateTime dateTime, string userName)
         {
             using var scope = _uow.Provide();
 
@@ -720,6 +720,8 @@ namespace TDL.Services.Services.v1
                 .Where(td => td.TodoDate.Date == dateTime.Date
                     && td.TodoDate.Month == dateTime.Month
                     && td.TodoDate.Year == dateTime.Year)
+                .Where(td => !td.WorkspaceId.HasValue)
+                .Where(td => td.CreatedBy.EqualsInvariant(userName))
                 .OrderBy(td => td.Priority)
                 .Select(td => new TodoOfDateResponseDto()
                 {

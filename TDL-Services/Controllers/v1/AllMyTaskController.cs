@@ -27,7 +27,7 @@ namespace TDL.APIs.Controllers.v1
         [HttpGet("all-task")]
         public IActionResult GetAllTask(DateTime dateTime)
         {
-            var response = _allMyTaskPageService.GetAllTask(dateTime);
+            var response = _allMyTaskPageService.GetAllTask(dateTime,UserName);
 
             return Ok(response);
         }
